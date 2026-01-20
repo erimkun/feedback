@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Flashback Lite
 
-## Getting Started
+Hızlı ve basit geri bildirim toplama uygulaması.
 
-First, run the development server:
+## Proje Yapısı ve İşleyiş
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Bu proje, kişiye özel geri bildirim linkleri oluşturarak kullanıcı deneyimini puanlamalarını sağlayan bir Next.js uygulamasıdır.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 1. Kişiler ve Linkler Nasıl Oluşturuluyor?
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Kişiler ve onlara özel linkler, terminal üzerinden çalışan bir script yardımıyla oluşturulur.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+*   **Komut:** `npm run create-link "Kişi Adı"`
+*   **Arka Plan:** Bu komut `scripts/create-link.ts` dosyasını çalıştırır.
+*   **İşleyiş:**
+    1.  Script, verdiğiniz ismi (`targetName`) alır.
+    2.  Benzersiz bir **UUID** (örn: `123e4567-e89b...`) oluşturur.
+    3.  Veritabanına (SQLite) yeni bir kayıt ekler: `{ id: UUID, targetName: "Kişi Adı", isUsed: false }`.
+    4.  Size bu ID'ye sahip özel bir URL verir: `http://localhost:3000/feedback/[UUID]`
 
-## Learn More
+### 2. URL Yapısı
 
-To learn more about Next.js, take a look at the following resources:
+URL'ler isme özel değil, **ID'ye (UUID) özeldir**. Bu sayede linkler tahmin edilemez ve güvenli olur. Ancak veritabanında bu ID, girdiğiniz isimle eşleştirilmiştir. Kullanıcı linki açtığında, sistem bu ID'yi veritabanında arar ve ilgili geri bildirim formunu gösterir.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 3. Feedbackler Nasıl Tutuluyor?
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Veriler yerel bir **SQLite** veritabanında (`prisma/dev.db`) saklanır.
 
-## Deploy on Vercel
+*   **Veri Modeli (`Feedback`):**
+    *   `id`: Linkin benzersiz kimliği (UUID).
+    *   `targetName`: Geri bildirimin kimin için olduğu.
+    *   `rating`: Verilen puan (1-5 arası).
+    *   `comment`: (Opsiyonel) Kullanıcı yorumu.
+    *   `isUsed`: Linkin kullanılıp kullanılmadığını belirtir (Tek seferlik kullanım için).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Kullanıcı formu doldurup "Gönder" dediğinde:
+1.  `submitFeedback` fonksiyonu (Server Action) çalışır.
+2.  ID'ye göre kayıt bulunur.
+3.  Eğer link daha önce kullanılmamışsa, puan ve yorum veritabanına kaydedilir.
+4.  `isUsed` alanı `true` olarak işaretlenir, böylece link tekrar kullanılamaz.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Kurulum ve Çalıştırma
+
+1.  Bağımlılıkları yükleyin:
+    ```bash
+    npm install
+    ```
+
+2.  Veritabanını hazırlayın:
+    ```bash
+    npx prisma generate
+    npx prisma db push
+    ```
+
+3.  Uygulamayı çalıştırın:
+    ```bash
+    npm run dev
+    ```
+
+4.  Yeni bir link oluşturun:
+    ```bash
+    npm run create-link "Ahmet Yılmaz"
+    ```
