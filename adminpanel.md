@@ -1,0 +1,1 @@
+şuanki uygulamada bir admin kontrol sayfası yok ben bir admin kontrol paneli oluşturmak istiyorum bu sayfada gönderilen feedbacklerin özetini ya da yeni link oluşturma gşbş özellikler olsun istiyorum bu safaya giriş ise .env dosyasında belirlenen şifre ve kullanıcı adı ile giriş yapılabilsin istiyorum

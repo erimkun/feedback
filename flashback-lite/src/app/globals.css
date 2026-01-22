@@ -35,3 +35,162 @@ body {
   box-shadow: 0 0 40px rgba(34, 197, 94, 0.2);
 }
 
+@keyframes breathe {
+  0% {
+    transform: scale(1);
+    opacity: 0.9;
+    filter: drop-shadow(0 0 10px rgba(19, 91, 236, 0.3));
+  }
+
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+    filter: drop-shadow(0 0 25px rgba(19, 91, 236, 0.6));
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 0.9;
+    filter: drop-shadow(0 0 10px rgba(19, 91, 236, 0.3));
+  }
+}
+
+.animate-breathe {
+  animation: breathe 3s ease-in-out infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse 8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  50% {
+    opacity: 0.4;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+}
+
+@keyframes snowfall {
+  0% {
+    transform: translateY(-10px) translateX(0);
+  }
+
+  25% {
+    transform: translateY(25vh) translateX(10px);
+  }
+
+  50% {
+    transform: translateY(50vh) translateX(-10px);
+  }
+
+  75% {
+    transform: translateY(75vh) translateX(10px);
+  }
+
+  100% {
+    transform: translateY(100vh) translateX(0);
+  }
+}
+
+.animate-snowfall {
+  animation-name: snowfall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes rain {
+  0% {
+    transform: translateY(-20px);
+  }
+
+  100% {
+    transform: translateY(105vh);
+  }
+}
+
+.animate-rain {
+  animation-name: rain;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes butterfly-float {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+
+  25% {
+    transform: translate(20px, -20px) rotate(10deg);
+  }
+
+  50% {
+    transform: translate(0, -40px) rotate(0deg);
+  }
+
+  75% {
+    transform: translate(-20px, -20px) rotate(-10deg);
+  }
+
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+}
+
+.animate-butterfly {
+  animation: butterfly-float 15s ease-in-out infinite;
+}
+
+@keyframes wing-flap-left {
+
+  0%,
+  100% {
+    transform: rotate(30deg) scaleX(1);
+  }
+
+  50% {
+    transform: rotate(30deg) scaleX(0.4);
+  }
+}
+
+@keyframes wing-flap-right {
+
+  0%,
+  100% {
+    transform: rotate(-30deg) scaleX(1);
+  }
+
+  50% {
+    transform: rotate(-30deg) scaleX(0.4);
+  }
+}
+
+.animate-wing-left {
+  animation: wing-flap-left 0.4s ease-in-out infinite;
+  transform-origin: right center;
+}
+
+.animate-wing-right {
+  animation: wing-flap-right 0.4s ease-in-out infinite;
+  transform-origin: left center;
+}
+
+.animate-spin-slow {
+  animation: spin 20s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}

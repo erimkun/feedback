@@ -4,6 +4,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Flashback Lite - Geri Bildirim",
   description: "Deneyiminizi değerlendirin",
+  icons: {
+    icon: '/SmallLogo.png',
+  },
 };
 
 export default function RootLayout({

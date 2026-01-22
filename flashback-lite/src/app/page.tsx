@@ -1,47 +1,47 @@
-export default function Home() {
+import Image from "next/image";
+import WeatherEffect from "@/components/WeatherEffect";
+import { getWeather, WeatherType } from "@/lib/weather";
+
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ weather?: string }>;
+}) {
+  const { weather: weatherParam } = await searchParams;
+  let weather: WeatherType = "sun";
+
+  if (weatherParam === "rain" || weatherParam === "snow" || weatherParam === "sun") {
+    weather = weatherParam as WeatherType;
+  } else {
+    weather = await getWeather();
+  }
+
   return (
-    <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden">
-      {/* TopAppBar */}
-      <div className="flex items-center bg-[#f6f6f8] dark:bg-[#101622] p-4 pb-2 justify-center sticky top-0 z-10">
-        <h2 className="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">
-          Flashback Lite
-        </h2>
+    <div className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-[#f6f6f8] dark:bg-[#101622]">
+      <WeatherEffect type={weather} />
+
+      {/* Ambient Background Effect */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-tr from-[#135bec]/10 to-purple-500/10 blur-[120px] rounded-full animate-pulse-slow"></div>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 flex flex-col items-center justify-center max-w-md mx-auto w-full px-6 text-center">
-        <div className="mb-8">
-          <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-[#135bec]/10 border-2 border-[#135bec]/30">
-            <span 
-              className="material-symbols-outlined text-[#135bec] text-6xl"
-              style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48" }}
-            >
-              feedback
-            </span>
-          </div>
-        </div>
+      {/* Centered Logo */}
+      <div className="relative z-10 flex flex-col items-center">
+        <div className="relative flex h-80 w-80 items-center justify-center">
+          {/* Inner Glow */}
+          <div className="absolute inset-0 bg-[#135bec]/20 blur-[60px] rounded-full animate-pulse"></div>
 
-        <div className="space-y-4">
-          <h1 className="text-slate-900 dark:text-white tracking-tight text-[32px] font-bold leading-tight">
-            Flashback Lite
-          </h1>
-          <p className="text-slate-600 dark:text-slate-400 text-lg font-normal leading-relaxed">
-            Basit ve hızlı geri bildirim toplama uygulaması.
-          </p>
-        </div>
-
-        <div className="mt-8 p-6 bg-slate-100 dark:bg-[#192233] rounded-xl w-full">
-          <p className="text-slate-600 dark:text-slate-400 text-sm font-normal leading-relaxed">
-            Yeni bir feedback linki oluşturmak için terminalde:
-          </p>
-          <code className="mt-3 block text-sm text-[#135bec] bg-slate-200 dark:bg-[#101622] p-3 rounded-lg">
-            npm run create-link &quot;İsim&quot;
-          </code>
+          <Image
+            src="/uskkenttaswhite.png"
+            alt="Flashback"
+            width={400}
+            height={400}
+            className="object-contain animate-breathe drop-shadow-2xl"
+            style={{ width: "auto", height: "auto", maxWidth: "100%", maxHeight: "100%" }}
+            priority
+          />
         </div>
       </div>
-
-      {/* Safe area spacing */}
-      <div className="h-8 bg-[#f6f6f8] dark:bg-[#101622]"></div>
     </div>
   );
 }
