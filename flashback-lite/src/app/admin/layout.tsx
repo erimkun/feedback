@@ -18,24 +18,21 @@ export default function AdminLayout({
         <div className="min-h-screen bg-gray-100 flex font-sans text-gray-900">
             {/* Sidebar - could be just a top header for simplicity since it's a small panel */}
             <div className="flex-1 flex flex-col">
-                <header className="bg-white shadow h-16 flex items-center justify-between px-6">
-                    <div className="flex items-center gap-4">
-                        <h1 className="text-xl font-bold text-gray-800">Feedback Admin</h1>
-                        <nav className="flex gap-4 ml-8">
-                            <Link href="/admin" className="text-gray-600 hover:text-blue-600 transition">Dashboard</Link>
-                        </nav>
+                <header className="bg-white shadow min-h-[56px] md:h-16 flex items-center justify-between px-4 md:px-6 py-2 md:py-0">
+                    <div className="flex items-center gap-2 md:gap-4">
+                        <h1 className="text-base md:text-xl font-bold text-gray-800">Feedback Admin</h1>
                     </div>
 
                     <form action={handleLogout}>
                         <button
                             type="submit"
-                            className="text-sm text-red-600 hover:text-red-800 font-medium px-3 py-1 rounded border border-red-200 hover:bg-red-50 transition"
+                            className="text-xs md:text-sm text-red-600 hover:text-red-800 font-medium px-2 md:px-3 py-1 rounded border border-red-200 hover:bg-red-50 transition"
                         >
-                            Çıkış Yap
+                            Çıkış
                         </button>
                     </form>
                 </header>
-                <main className="flex-1 p-6 overflow-auto">
+                <main className="flex-1 p-4 md:p-6 overflow-auto">
                     {children}
                 </main>
             </div>

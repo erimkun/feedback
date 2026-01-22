@@ -26,10 +26,16 @@ export async function getFeedbackStats() {
 }
 
 export async function getRecentFeedback() {
-    return await prisma.feedback.findMany({
+    const feedback = await prisma.feedback.findMany({
         orderBy: { createdAt: "desc" },
         take: 50,
     });
+    
+    // Convert Date to ISO string to avoid hydration mismatch
+    return feedback.map(item => ({
+        ...item,
+        createdAt: item.createdAt.toISOString(),
+    }));
 }
 
 export async function createFeedbackLink(targetName: string) {

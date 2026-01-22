@@ -10,7 +10,7 @@ interface FeedbackRowProps {
         targetName: string;
         rating: number | null;
         comment: string | null;
-        createdAt: Date;
+        createdAt: string;
     };
 }
 
@@ -24,6 +24,8 @@ export default function FeedbackRow({ item }: FeedbackRowProps) {
             });
         }
     };
+
+    const formattedDate = format(new Date(item.createdAt), "dd MMM yyyy HH:mm");
 
     return (
         <tr className={`hover:bg-gray-50 transition ${isPending ? "opacity-50" : ""}`}>
@@ -50,7 +52,7 @@ export default function FeedbackRow({ item }: FeedbackRowProps) {
                 {item.comment || "-"}
             </td>
             <td className="px-6 py-4 text-gray-500">
-                {format(new Date(item.createdAt), "dd MMM yyyy HH:mm")}
+                {formattedDate}
             </td>
             <td className="px-6 py-4 text-right">
                 <button
