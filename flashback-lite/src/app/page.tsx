@@ -17,23 +17,23 @@ export default async function Home({
   }
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-[#f6f6f8] dark:bg-[#101622]">
+    <div className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-[#d63417] via-[#e84c3d] to-[#c0392b]">
       <WeatherEffect type={weather} />
 
       {/* Ambient Background Effect */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-tr from-[#135bec]/10 to-purple-500/10 blur-[120px] rounded-full animate-pulse-slow"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-tr from-white/20 to-white/5 blur-[120px] rounded-full animate-pulse-slow"></div>
       </div>
 
       {/* Centered Logo */}
       <div className="relative z-10 flex flex-col items-center">
         <div className="relative flex h-80 w-80 items-center justify-center">
           {/* Inner Glow */}
-          <div className="absolute inset-0 bg-[#135bec]/20 blur-[60px] rounded-full animate-pulse"></div>
+          <div className="absolute inset-0 bg-white/30 blur-[60px] rounded-full animate-pulse"></div>
 
           <Image
             src="/uskkenttaswhite.png"
-            alt="Flashback"
+            alt="Üsküdar Yenileniyor"
             width={400}
             height={400}
             className="object-contain animate-breathe drop-shadow-2xl"
@@ -42,6 +42,13 @@ export default async function Home({
           />
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="absolute bottom-0 p-8 text-center w-full">
+        <p className="text-white/60 text-[10px] font-bold uppercase tracking-wider">
+          © 2024 Üsküdar Belediyesi Kentsel Dönüşüm Müdürlüğü
+        </p>
+      </footer>
     </div>
   );
 }
