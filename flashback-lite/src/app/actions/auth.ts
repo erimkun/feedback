@@ -2,6 +2,7 @@
 
 import { SignJWT } from "jose";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 const SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "default_secret");
 const ALG = "HS256";
@@ -29,7 +30,7 @@ export async function login(prevState: any, formData: FormData) {
       path: "/",
     });
 
-    return { success: true };
+    redirect("/admin");
   }
 
   return { success: false, error: "Geçersiz kullanıcı adı veya şifre" };
