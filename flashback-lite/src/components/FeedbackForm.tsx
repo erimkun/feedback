@@ -1,25 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { submitFeedback } from "@/app/actions";
-import WeatherEffect from "@/components/WeatherEffect";
-import { WeatherType } from "@/lib/weather";
+import Script from "next/script";
 
 interface FeedbackFormProps {
   feedbackId: string;
   targetName: string;
-  weather: WeatherType;
 }
 
+// Rating renkleri (1: kırmızı -> 5: yeşil)
+const ratingColors: Record<number, string> = {
+  1: "#FF0033", // Rich Red
+  2: "#FF6600", // Vivid Orange
+  3: "#FFCC00", // Golden Yellow
+  4: "#99CC33", // Olive/Lime
+  5: "#339900", // Grass Green
+};
+
+// Phosphor icon isimleri
 const ratingIcons = [
-  { value: 1, icon: "sentiment_very_dissatisfied" },
-  { value: 2, icon: "sentiment_dissatisfied" },
-  { value: 3, icon: "sentiment_neutral" },
-  { value: 4, icon: "sentiment_satisfied" },
-  { value: 5, icon: "sentiment_very_satisfied" },
+  { value: 1, icon: "ph-smiley-x-eyes" },
+  { value: 2, icon: "ph-smiley-sad" },
+  { value: 3, icon: "ph-smiley-meh" },
+  { value: 4, icon: "ph-smiley" },
+  { value: 5, icon: "ph-smiley-wink" },
 ];
 
-export default function FeedbackForm({ feedbackId, targetName, weather }: FeedbackFormProps) {
+export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormProps) {
   const [selectedRating, setSelectedRating] = useState<number | null>(null);
   const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,6 +44,8 @@ export default function FeedbackForm({ feedbackId, targetName, weather }: Feedba
 
     if (result.success) {
       setIsSubmitted(true);
+      // Confetti efekti
+      fireConfetti();
     } else {
       setError(result.error || "Bir hata oluştu.");
     }
@@ -43,159 +53,230 @@ export default function FeedbackForm({ feedbackId, targetName, weather }: Feedba
     setIsSubmitting(false);
   };
 
+  const fireConfetti = () => {
+    if (typeof window !== "undefined" && (window as any).confetti) {
+      const duration = 3 * 1000;
+      const animationEnd = Date.now() + duration;
+      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+      const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
+
+      const interval = setInterval(() => {
+        const timeLeft = animationEnd - Date.now();
+
+        if (timeLeft <= 0) {
+          return clearInterval(interval);
+        }
+
+        const particleCount = 50 * (timeLeft / duration);
+        (window as any).confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+        (window as any).confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+      }, 250);
+    }
+  };
+
   // Success / Thank you screen
   if (isSubmitted) {
     return (
-      <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-[#f6f6f8] dark:bg-[#101622]">
-        <WeatherEffect type={weather} />
-        
-        {/* TopAppBar */}
-        <div className="flex items-center bg-[#f6f6f8]/80 dark:bg-[#101622]/80 backdrop-blur-sm p-4 pb-2 justify-between sticky top-0 z-10">
-          <div className="text-slate-900 dark:text-white flex size-12 shrink-0 items-center justify-start opacity-0">
-            <span className="material-symbols-outlined cursor-default text-2xl">close</span>
-          </div>
-          <h2 className="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">
-            Geri Bildirim
-          </h2>
-          <div className="text-slate-900 dark:text-white flex size-12 shrink-0 items-center justify-end opacity-0">
-            <span className="material-symbols-outlined cursor-pointer text-2xl">close</span>
-          </div>
-        </div>
-
-        {/* Success Content */}
-        <div className="flex-1 flex flex-col items-center justify-center max-w-md mx-auto w-full px-6 text-center relative z-10">
-          <div className="mb-8">
-            <div className="relative inline-flex items-center justify-center">
-              <div className="absolute inset-0 bg-[#22c55e]/20 rounded-full blur-2xl animate-pulse"></div>
-              <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-[#22c55e]/10 border-2 border-[#22c55e]/30 glow-effect">
-                <span 
-                  className="material-symbols-outlined text-[#22c55e] text-6xl"
-                  style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48" }}
-                >
-                  check_circle
-                </span>
+      <>
+        <Script src="https://unpkg.com/@phosphor-icons/web" strategy="beforeInteractive" />
+        <Script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js" strategy="beforeInteractive" />
+        <div className="bg-white min-h-dvh overflow-hidden flex flex-col font-['Manrope',sans-serif]">
+          {/* Header */}
+          <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md">
+            <div className="flex items-center p-4 justify-between max-w-md mx-auto w-full">
+              <div className="text-[#2e687a] flex size-10 shrink-0 items-center justify-start cursor-pointer">
+                <i className="ph-bold ph-x text-2xl"></i>
+              </div>
+              <h2 className="text-[#d63417] text-base font-extrabold leading-tight tracking-tight flex-1 text-center">
+                Üsküdar Yenileniyor
+              </h2>
+              <div className="size-10 flex items-center justify-end">
+                <i className="ph-bold ph-info text-2xl text-[#2e687a]/40"></i>
               </div>
             </div>
-          </div>
+          </header>
 
-          <div className="space-y-4">
-            <h1 className="text-slate-900 dark:text-white tracking-tight text-[32px] font-bold leading-tight">
-              Geri Bildiriminiz İçin Teşekkürler!
-            </h1>
-            <p className="text-slate-600 dark:text-slate-400 text-lg font-normal leading-relaxed">
-              Düşünceleriniz gelişimimize ışık tutuyor.
+          {/* Main Content */}
+          <main className="flex-1 flex flex-col items-center justify-center p-6 max-w-md mx-auto w-full">
+            <div className="w-full max-w-md flex flex-col items-center justify-center gap-6">
+              <div className="w-24 h-24 rounded-full bg-green-100 flex items-center justify-center mb-2">
+                <i className="ph-fill ph-check-circle text-6xl text-green-500"></i>
+              </div>
+              <div className="text-center space-y-2">
+                <h2 className="text-3xl font-extrabold text-gray-900">Teşekkür Ederiz!</h2>
+                <p className="text-gray-500 text-lg">Geri bildiriminiz başarıyla iletildi.</p>
+              </div>
+            </div>
+          </main>
+
+          {/* Footer */}
+          <footer className="p-8 text-center mt-auto">
+            <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">
+              © 2026 Üsküdar Belediyesi Kentsel Dönüşüm Müdürlüğü
             </p>
-          </div>
+          </footer>
         </div>
-
-        {/* Safe area spacing */}
-        <div className="h-8 bg-[#f6f6f8] dark:bg-[#101622]"></div>
-      </div>
+      </>
     );
   }
 
   // Feedback Form
   return (
-    <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-[#f6f6f8] dark:bg-[#101622]">
-      <WeatherEffect type={weather} />
+    <>
+      <Script src="https://unpkg.com/@phosphor-icons/web" strategy="beforeInteractive" />
+      <Script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js" strategy="beforeInteractive" />
+      <style jsx global>{`
+        .ph-fill {
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .rating-item:hover .ph-fill,
+        .rating-item.selected .ph-fill {
+          transform: scale(1.15);
+        }
+        .rating-item:hover p,
+        .rating-item.selected p {
+          font-weight: 700;
+        }
+        textarea:focus {
+          outline: none;
+          border-color: #d63417;
+          box-shadow: 0 0 0 3px rgba(214, 52, 23, 0.1);
+        }
+      `}</style>
       
-      {/* TopAppBar Component */}
-      <div className="flex items-center bg-[#f6f6f8]/80 dark:bg-[#101622]/80 backdrop-blur-sm p-4 pb-2 justify-between sticky top-0 z-10">
-        <div className="text-slate-900 dark:text-white flex size-12 shrink-0 items-center justify-start">
-          <span className="material-symbols-outlined cursor-pointer text-2xl">close</span>
-        </div>
-        <h2 className="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-12">
-          Puanlama Ekranı
-        </h2>
-      </div>
+      <div className="bg-white min-h-dvh overflow-hidden flex flex-col font-['Manrope',sans-serif]">
+        {/* Header */}
+        <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md">
+          <div className="flex items-center p-4 justify-between max-w-md mx-auto w-full">
+            <div className="text-[#2e687a] flex size-10 shrink-0 items-center justify-start cursor-pointer">
+              <i className="ph-bold ph-x text-2xl"></i>
+            </div>
+            <h2 className="text-[#d63417] text-base font-extrabold leading-tight tracking-tight flex-1 text-center">
+              Üsküdar Yenileniyor
+            </h2>
+            <div className="size-10 flex items-center justify-end">
+              <i className="ph-bold ph-info text-2xl text-[#2e687a]/40"></i>
+            </div>
+          </div>
+        </header>
 
-      <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full px-4 relative z-10">
-        {/* HeadlineText Component */}
-        <div className="pt-8 pb-6">
-          <h2 className="text-slate-900 dark:text-white tracking-light text-[28px] font-bold leading-tight text-center">
-            Deneyiminizi nasıl değerlendirirsiniz?
-          </h2>
-        </div>
+        {/* Main Content */}
+        <main className="flex-1 flex flex-col items-center justify-center p-6 max-w-md mx-auto w-full">
+          <div className="w-full max-w-md flex flex-col items-center">
+            {/* Logo Section */}
+            <div className="w-full text-center mb-2">
+              <div className="bg-[#d63417] p-2 rounded-xl inline-block mb-3 shadow-lg shadow-[#d63417]/20">
+                <img src="/logo.png" alt="Logo" className="h-10 object-contain" />
+              </div>
+              <h1 className="text-xl font-extrabold text-gray-900">
+                Merhaba <span className="text-black">{targetName}</span>
+              </h1>
+            </div>
 
-        {/* ActionsBar Component (Expressive Icons) */}
-        <div className="py-6">
-          <div className="gap-2 grid grid-cols-5">
-            {ratingIcons.map(({ value, icon }) => (
-              <div
-                key={value}
-                onClick={() => setSelectedRating(value)}
-                className={`flex flex-col items-center gap-3 py-2.5 text-center group cursor-pointer ${
-                  selectedRating === value ? "rating-selected" : ""
-                }`}
-              >
-                <div
-                  className={`rounded-full p-4 transition-colors ${
-                    selectedRating === value
-                      ? "bg-[#135bec]/20"
-                      : "bg-slate-200 dark:bg-[#232f48] group-hover:bg-[#135bec]/20"
+            {/* Card */}
+            <div className="w-full bg-white rounded-2xl shadow-xl shadow-[#2e687a]/5 p-5 flex flex-col gap-4 border border-gray-100">
+              {/* Question */}
+              <div className="text-center">
+                <h3 className="text-gray-900 text-base font-extrabold leading-tight">
+                  Bugünkü Kentsel Dönüşüm planlama süreci deneyiminizi nasıl değerlendirirsiniz?
+                </h3>
+                <p className="text-gray-500 text-xs mt-2">
+                  Görüşleriniz mahallemizin geleceğini şekillendiriyor.
+                </p>
+              </div>
+
+              {/* Rating Icons */}
+              <div className="flex justify-between items-center px-1">
+                {ratingIcons.map(({ value, icon }) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setSelectedRating(value)}
+                    className={`rating-item flex flex-col items-center gap-1 group outline-none ${
+                      selectedRating === value ? "selected" : ""
+                    }`}
+                  >
+                    <div
+                      className={`rounded-full w-12 h-12 flex items-center justify-center transition-all ${
+                        selectedRating === value
+                          ? "bg-[#d63417]/10"
+                          : "bg-[#f7f7f8] group-hover:bg-[#d63417]/10"
+                      }`}
+                    >
+                      <i
+                        className={`ph-fill ${icon} text-3xl transition-colors`}
+                        style={{
+                          color:
+                            selectedRating === value
+                              ? ratingColors[value]
+                              : "#9ca3af",
+                        }}
+                      ></i>
+                    </div>
+                    <p
+                      className="text-[10px] font-bold transition-colors"
+                      style={{
+                        color:
+                          selectedRating === value
+                            ? ratingColors[value]
+                            : "#9ca3af",
+                      }}
+                    >
+                      {value}
+                    </p>
+                  </button>
+                ))}
+              </div>
+
+              {/* Comment Field */}
+              <div className="w-full flex flex-col gap-2">
+                <label className="text-gray-700 text-xs font-bold" htmlFor="comment">
+                  Eklemek istediğiniz bir not var mı?
+                </label>
+                <textarea
+                  id="comment"
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  className="w-full p-3 rounded-xl bg-gray-50 border border-gray-100 text-xs text-gray-900 placeholder:text-gray-400 focus:ring-0 transition-all resize-none"
+                  placeholder="Görüşlerinizi buraya yazabilirsiniz..."
+                  rows={2}
+                />
+              </div>
+
+              {/* Error Message */}
+              {error && (
+                <div className="text-center">
+                  <p className="text-red-500 text-xs font-medium">{error}</p>
+                </div>
+              )}
+
+              {/* Submit Button */}
+              <div className="pt-1">
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={!selectedRating || isSubmitting}
+                  className={`w-full flex cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 px-6 bg-[#d63417] text-white text-sm font-extrabold shadow-lg shadow-[#d63417]/20 active:scale-[0.98] transition-all ${
+                    !selectedRating || isSubmitting
+                      ? "opacity-50 cursor-not-allowed"
+                      : ""
                   }`}
                 >
-                  <span
-                    className={`material-symbols-outlined text-3xl ${
-                      selectedRating === value
-                        ? "text-[#135bec]"
-                        : "text-slate-700 dark:text-white"
-                    }`}
-                    style={
-                      selectedRating === value
-                        ? { fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }
-                        : undefined
-                    }
-                  >
-                    {icon}
-                  </span>
-                </div>
-                <p className="text-slate-600 dark:text-slate-400 text-sm font-medium">{value}</p>
+                  <span>{isSubmitting ? "Gönderiliyor..." : "Geri Bildirim Gönder"}</span>
+                </button>
               </div>
-            ))}
+            </div>
           </div>
-        </div>
+        </main>
 
-        {/* TextField Component */}
-        <div className="py-6">
-          <label className="flex flex-col w-full">
-            <p className="text-slate-700 dark:text-white text-base font-medium leading-normal pb-2">
-              Yorumunuz (Opsiyonel)
-            </p>
-            <textarea
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              className="flex w-full resize-none overflow-hidden rounded-xl text-slate-900 dark:text-white focus:outline-0 focus:ring-2 focus:ring-[#135bec]/50 border border-slate-300 dark:border-[#324467] bg-white dark:bg-[#192233] placeholder:text-slate-400 dark:placeholder:text-[#92a4c9] min-h-36 p-4 text-base font-normal leading-normal"
-              placeholder="Geri bildiriminizi buraya yazın..."
-            />
-          </label>
-        </div>
-
-        {/* Error Message */}
-        {error && (
-          <div className="py-2 text-center">
-            <p className="text-red-500 text-sm">{error}</p>
-          </div>
-        )}
+        {/* Footer */}
+        <footer className="p-8 text-center mt-auto">
+          <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">
+            © 2026 Üsküdar Belediyesi Kentsel Dönüşüm Müdürlüğü
+          </p>
+        </footer>
       </div>
-
-      {/* SingleButton Component (Sticky at bottom) */}
-      <div className="mt-auto px-4 py-8 max-w-md mx-auto w-full relative z-10">
-        <button
-          onClick={handleSubmit}
-          disabled={!selectedRating || isSubmitting}
-          className={`flex w-full items-center justify-center overflow-hidden rounded-xl h-14 px-5 bg-[#135bec] text-white text-lg font-bold leading-normal tracking-[0.015em] shadow-lg shadow-[#135bec]/20 transition-opacity ${
-            !selectedRating || isSubmitting
-              ? "opacity-50 cursor-not-allowed"
-              : "opacity-100 cursor-pointer hover:bg-[#135bec]/90 active:scale-[0.98]"
-          }`}
-        >
-          <span className="truncate">{isSubmitting ? "Gönderiliyor..." : "Gönder"}</span>
-        </button>
-      </div>
-
-      {/* Safe area spacing for mobile */}
-      <div className="h-6 bg-[#f6f6f8] dark:bg-[#101622]"></div>
-    </div>
+    </>
   );
 }

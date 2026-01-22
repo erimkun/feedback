@@ -1,8 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import FeedbackForm from "@/components/FeedbackForm";
 import { notFound } from "next/navigation";
-import WeatherEffect from "@/components/WeatherEffect";
-import { getWeather } from "@/lib/weather";
+import Script from "next/script";
 
 interface FeedbackPageProps {
   params: Promise<{ id: string }>;
@@ -10,7 +9,6 @@ interface FeedbackPageProps {
 
 export default async function FeedbackPage({ params }: FeedbackPageProps) {
   const { id } = await params;
-  const weather = await getWeather();
 
   const feedback = await prisma.feedback.findUnique({
     where: { id },
@@ -24,47 +22,48 @@ export default async function FeedbackPage({ params }: FeedbackPageProps) {
   // If already used, show info message
   if (feedback.isUsed) {
     return (
-      <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-[#f6f6f8] dark:bg-[#101622]">
-        <WeatherEffect type={weather} />
-        
-        {/* TopAppBar */}
-        <div className="flex items-center bg-[#f6f6f8]/80 dark:bg-[#101622]/80 backdrop-blur-sm p-4 pb-2 justify-between sticky top-0 z-10">
-          <div className="flex size-12"></div>
-          <h2 className="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">
-            Geri Bildirim
-          </h2>
-          <div className="flex size-12"></div>
-        </div>
-
-        {/* Info Message */}
-        <div className="flex-1 flex flex-col items-center justify-center max-w-md mx-auto w-full px-6 text-center relative z-10">
-          <div className="mb-8">
-            <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-slate-200 dark:bg-[#232f48]">
-              <span 
-                className="material-symbols-outlined text-slate-500 dark:text-slate-400 text-6xl"
-                style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48" }}
-              >
-                info
-              </span>
+      <>
+        <Script src="https://unpkg.com/@phosphor-icons/web" strategy="beforeInteractive" />
+        <div className="bg-white min-h-dvh overflow-hidden flex flex-col font-['Manrope',sans-serif]">
+          {/* Header */}
+          <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md">
+            <div className="flex items-center p-4 justify-between max-w-md mx-auto w-full">
+              <div className="text-[#2e687a] flex size-10 shrink-0 items-center justify-start cursor-pointer">
+                <i className="ph-bold ph-x text-2xl"></i>
+              </div>
+              <h2 className="text-[#d63417] text-base font-extrabold leading-tight tracking-tight flex-1 text-center">
+                Üsküdar Yenileniyor
+              </h2>
+              <div className="size-10 flex items-center justify-end">
+                <i className="ph-bold ph-info text-2xl text-[#2e687a]/40"></i>
+              </div>
             </div>
-          </div>
+          </header>
 
-          <div className="space-y-4">
-            <h1 className="text-slate-900 dark:text-white tracking-tight text-[28px] font-bold leading-tight">
-              Bu Link Kullanılmış
-            </h1>
-            <p className="text-slate-600 dark:text-slate-400 text-lg font-normal leading-relaxed">
-              Bu geri bildirim linki daha önce kullanılmış. Her link sadece bir kez kullanılabilir.
+          {/* Main Content */}
+          <main className="flex-1 flex flex-col items-center justify-center p-6 max-w-md mx-auto w-full">
+            <div className="w-full max-w-md flex flex-col items-center justify-center gap-6">
+              <div className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center mb-2">
+                <i className="ph-fill ph-info text-6xl text-gray-400"></i>
+              </div>
+              <div className="text-center space-y-2">
+                <h2 className="text-3xl font-extrabold text-gray-900">Bu Link Kullanılmış</h2>
+                <p className="text-gray-500 text-lg">Bu geri bildirim linki daha önce kullanılmış. Her link sadece bir kez kullanılabilir.</p>
+              </div>
+            </div>
+          </main>
+
+          {/* Footer */}
+          <footer className="p-8 text-center mt-auto">
+            <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">
+              © 2024 Üsküdar Belediyesi Kentsel Dönüşüm Müdürlüğü
             </p>
-          </div>
+          </footer>
         </div>
-
-        {/* Safe area spacing */}
-        <div className="h-8 bg-[#f6f6f8] dark:bg-[#101622]"></div>
-      </div>
+      </>
     );
   }
 
-  // Valid feedback - render the form with weather
-  return <FeedbackForm feedbackId={feedback.id} targetName={feedback.targetName} weather={weather} />;
+  // Valid feedback - render the form
+  return <FeedbackForm feedbackId={feedback.id} targetName={feedback.targetName} />;
 }
