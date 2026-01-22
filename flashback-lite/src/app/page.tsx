@@ -1,5 +1,6 @@
 import Image from "next/image";
 import WeatherEffect from "@/components/WeatherEffect";
+import ParticlesCanvas from "@/components/ParticlesCanvas";
 import { getWeather, WeatherType } from "@/lib/weather";
 
 export default async function Home({
@@ -19,6 +20,7 @@ export default async function Home({
   return (
     <div className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-[#d63417] via-[#e84c3d] to-[#c0392b]">
       <WeatherEffect type={weather} />
+      <ParticlesCanvas />
 
       {/* Ambient Background Effect */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -32,11 +34,11 @@ export default async function Home({
           <div className="absolute inset-0 bg-white/30 blur-[60px] rounded-full animate-pulse"></div>
 
           <Image
-            src="/uskkenttaswhite.png"
+            src="/logo.png"
             alt="Üsküdar Yenileniyor"
-            width={400}
-            height={400}
-            className="object-contain animate-breathe drop-shadow-2xl"
+            width={200}
+            height={200}
+            className="object-contain drop-shadow-2xl"
             style={{ width: "auto", height: "auto", maxWidth: "100%", maxHeight: "100%" }}
             priority
           />
@@ -44,9 +46,9 @@ export default async function Home({
       </div>
 
       {/* Footer */}
-      <footer className="absolute bottom-0 p-8 text-center w-full">
+      <footer className="absolute bottom-0 p-8 text-center w-full z-10">
         <p className="text-white/60 text-[10px] font-bold uppercase tracking-wider">
-          © 2024 Üsküdar Belediyesi Kentsel Dönüşüm Müdürlüğü
+          © 2026 Üsküdar Belediyesi Kentsel Dönüşüm Müdürlüğü
         </p>
       </footer>
     </div>
