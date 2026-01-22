@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import FeedbackForm from "@/components/FeedbackForm";
 import { notFound } from "next/navigation";
+import WeatherEffect from "@/components/WeatherEffect";
+import { getWeather } from "@/lib/weather";
 
 interface FeedbackPageProps {
   params: Promise<{ id: string }>;
@@ -8,6 +10,7 @@ interface FeedbackPageProps {
 
 export default async function FeedbackPage({ params }: FeedbackPageProps) {
   const { id } = await params;
+  const weather = await getWeather();
 
   const feedback = await prisma.feedback.findUnique({
     where: { id },
@@ -21,9 +24,11 @@ export default async function FeedbackPage({ params }: FeedbackPageProps) {
   // If already used, show info message
   if (feedback.isUsed) {
     return (
-      <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+      <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-[#f6f6f8] dark:bg-[#101622]">
+        <WeatherEffect type={weather} />
+        
         {/* TopAppBar */}
-        <div className="flex items-center bg-[#f6f6f8] dark:bg-[#101622] p-4 pb-2 justify-between sticky top-0 z-10">
+        <div className="flex items-center bg-[#f6f6f8]/80 dark:bg-[#101622]/80 backdrop-blur-sm p-4 pb-2 justify-between sticky top-0 z-10">
           <div className="flex size-12"></div>
           <h2 className="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">
             Geri Bildirim
@@ -32,7 +37,7 @@ export default async function FeedbackPage({ params }: FeedbackPageProps) {
         </div>
 
         {/* Info Message */}
-        <div className="flex-1 flex flex-col items-center justify-center max-w-md mx-auto w-full px-6 text-center">
+        <div className="flex-1 flex flex-col items-center justify-center max-w-md mx-auto w-full px-6 text-center relative z-10">
           <div className="mb-8">
             <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-slate-200 dark:bg-[#232f48]">
               <span 
@@ -60,6 +65,6 @@ export default async function FeedbackPage({ params }: FeedbackPageProps) {
     );
   }
 
-  // Valid feedback - render the form
-  return <FeedbackForm feedbackId={feedback.id} targetName={feedback.targetName} />;
+  // Valid feedback - render the form with weather
+  return <FeedbackForm feedbackId={feedback.id} targetName={feedback.targetName} weather={weather} />;
 }

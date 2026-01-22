@@ -2,10 +2,13 @@
 
 import { useState } from "react";
 import { submitFeedback } from "@/app/actions";
+import WeatherEffect from "@/components/WeatherEffect";
+import { WeatherType } from "@/lib/weather";
 
 interface FeedbackFormProps {
   feedbackId: string;
   targetName: string;
+  weather: WeatherType;
 }
 
 const ratingIcons = [
@@ -16,7 +19,7 @@ const ratingIcons = [
   { value: 5, icon: "sentiment_very_satisfied" },
 ];
 
-export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormProps) {
+export default function FeedbackForm({ feedbackId, targetName, weather }: FeedbackFormProps) {
   const [selectedRating, setSelectedRating] = useState<number | null>(null);
   const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,9 +46,11 @@ export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormPro
   // Success / Thank you screen
   if (isSubmitted) {
     return (
-      <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+      <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-[#f6f6f8] dark:bg-[#101622]">
+        <WeatherEffect type={weather} />
+        
         {/* TopAppBar */}
-        <div className="flex items-center bg-[#f6f6f8] dark:bg-[#101622] p-4 pb-2 justify-between sticky top-0 z-10">
+        <div className="flex items-center bg-[#f6f6f8]/80 dark:bg-[#101622]/80 backdrop-blur-sm p-4 pb-2 justify-between sticky top-0 z-10">
           <div className="text-slate-900 dark:text-white flex size-12 shrink-0 items-center justify-start opacity-0">
             <span className="material-symbols-outlined cursor-default text-2xl">close</span>
           </div>
@@ -58,7 +63,7 @@ export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormPro
         </div>
 
         {/* Success Content */}
-        <div className="flex-1 flex flex-col items-center justify-center max-w-md mx-auto w-full px-6 text-center">
+        <div className="flex-1 flex flex-col items-center justify-center max-w-md mx-auto w-full px-6 text-center relative z-10">
           <div className="mb-8">
             <div className="relative inline-flex items-center justify-center">
               <div className="absolute inset-0 bg-[#22c55e]/20 rounded-full blur-2xl animate-pulse"></div>
@@ -91,9 +96,11 @@ export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormPro
 
   // Feedback Form
   return (
-    <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+    <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-[#f6f6f8] dark:bg-[#101622]">
+      <WeatherEffect type={weather} />
+      
       {/* TopAppBar Component */}
-      <div className="flex items-center bg-[#f6f6f8] dark:bg-[#101622] p-4 pb-2 justify-between sticky top-0 z-10">
+      <div className="flex items-center bg-[#f6f6f8]/80 dark:bg-[#101622]/80 backdrop-blur-sm p-4 pb-2 justify-between sticky top-0 z-10">
         <div className="text-slate-900 dark:text-white flex size-12 shrink-0 items-center justify-start">
           <span className="material-symbols-outlined cursor-pointer text-2xl">close</span>
         </div>
@@ -102,7 +109,7 @@ export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormPro
         </h2>
       </div>
 
-      <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full px-4">
+      <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full px-4 relative z-10">
         {/* HeadlineText Component */}
         <div className="pt-8 pb-6">
           <h2 className="text-slate-900 dark:text-white tracking-light text-[28px] font-bold leading-tight text-center">
@@ -173,7 +180,7 @@ export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormPro
       </div>
 
       {/* SingleButton Component (Sticky at bottom) */}
-      <div className="mt-auto px-4 py-8 max-w-md mx-auto w-full">
+      <div className="mt-auto px-4 py-8 max-w-md mx-auto w-full relative z-10">
         <button
           onClick={handleSubmit}
           disabled={!selectedRating || isSubmitting}
