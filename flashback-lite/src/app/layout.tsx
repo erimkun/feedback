@@ -24,15 +24,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="tr" className="light">
+    <html lang="tr" className="light" style={{ colorScheme: 'light only', backgroundColor: '#ffffff' }}>
       <head>
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
         <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: dark)" />
+        <meta name="color-scheme" content="light only" />
         <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
       </head>
-      <body className="bg-white font-['Manrope',sans-serif] text-gray-900 antialiased overflow-hidden">
+      <body className="bg-white font-['Manrope',sans-serif] text-gray-900 antialiased overflow-hidden" style={{ backgroundColor: '#ffffff' }}>
         {children}
       </body>
     </html>
