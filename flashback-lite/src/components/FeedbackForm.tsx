@@ -24,7 +24,7 @@ const ratingIcons = [
   { value: 2, icon: "ph-smiley-meh" },
   { value: 3, icon: "ph-smiley-blank" },
   { value: 4, icon: "ph-smiley" },
-  { value: 5, icon: "ph-smiley-sticker" },
+  { value: 5, icon: "ph-smiley-melting" },
 ];
 
 export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormProps) {
