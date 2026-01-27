@@ -20,11 +20,11 @@ const ratingColors: Record<number, string> = {
 
 // Phosphor icon isimleri
 const ratingIcons = [
-  { value: 1, icon: "ph-smiley-blank", isEmoji: false },
-  { value: 2, icon: "ph-smiley-sad", isEmoji: false },
-  { value: 3, icon: "ph-smiley-meh", isEmoji: false },
-  { value: 4, icon: "ph-smiley", isEmoji: false },
-  { value: 5, icon: "😍", isEmoji: true },
+  { value: 1, icon: "ph-smiley-sad" },
+  { value: 2, icon: "ph-smiley-meh" },
+  { value: 3, icon: "ph-smiley-blank" },
+  { value: 4, icon: "ph-smiley" },
+  { value: 5, icon: "ph-smiley-sticker" },
 ];
 
 export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormProps) {
@@ -165,7 +165,7 @@ export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormPro
 
               {/* Rating Icons */}
               <div className="flex justify-between items-center px-2">
-                {ratingIcons.map(({ value, icon, isEmoji }) => (
+                {ratingIcons.map(({ value, icon }) => (
                   <button
                     key={value}
                     type="button"
@@ -182,27 +182,15 @@ export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormPro
                           : "bg-[#f7f7f8] group-hover:bg-[#E42617]/10"
                       }`}
                     >
-                      {isEmoji ? (
-                        <span 
-                          className="text-4xl transition-all"
-                          style={{
-                            filter: selectedRating === value ? "none" : "grayscale(100%)",
-                            opacity: selectedRating === value ? 1 : 0.6,
-                          }}
-                        >
-                          {icon}
-                        </span>
-                      ) : (
-                        <i
-                          className={`ph-fill ${icon} text-4xl transition-colors`}
-                          style={{
-                            color:
-                              selectedRating === value
-                                ? ratingColors[value]
-                                : "#9ca3af",
-                          }}
-                        ></i>
-                      )}
+                      <i
+                        className={`ph-fill ${icon} text-4xl transition-colors`}
+                        style={{
+                          color:
+                            selectedRating === value
+                              ? ratingColors[value]
+                              : "#9ca3af",
+                        }}
+                      ></i>
                     </div>
                     <p
                       className="text-xs font-bold transition-colors"
