@@ -18,7 +18,7 @@ export default async function Home({
   }
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-[#d63417] via-[#e84c3d] to-[#c0392b]">
+    <div className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-[#E42617] via-[#F04030] to-[#C41E10]">
       <WeatherEffect type={weather} />
       <ParticlesCanvas />
 

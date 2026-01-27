@@ -27,28 +27,22 @@ export default async function FeedbackPage({ params }: FeedbackPageProps) {
         <div className="bg-white min-h-dvh overflow-hidden flex flex-col font-['Manrope',sans-serif]">
           {/* Header */}
           <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md">
-            <div className="flex items-center p-4 justify-between max-w-md mx-auto w-full">
-              <div className="text-[#2e687a] flex size-10 shrink-0 items-center justify-start cursor-pointer">
-                <i className="ph-bold ph-x text-2xl"></i>
-              </div>
-              <h2 className="text-[#d63417] text-base font-extrabold leading-tight tracking-tight flex-1 text-center">
+            <div className="flex items-center p-6 justify-center max-w-lg mx-auto w-full">
+              <h2 className="text-[#E42617] text-xl font-extrabold leading-tight tracking-tight text-center">
                 Üsküdar Yenileniyor
               </h2>
-              <div className="size-10 flex items-center justify-end">
-                <i className="ph-bold ph-info text-2xl text-[#2e687a]/40"></i>
-              </div>
             </div>
           </header>
 
           {/* Main Content */}
-          <main className="flex-1 flex flex-col items-center justify-center p-6 max-w-md mx-auto w-full">
-            <div className="w-full max-w-md flex flex-col items-center justify-center gap-6">
-              <div className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center mb-2">
-                <i className="ph-fill ph-info text-6xl text-gray-400"></i>
+          <main className="flex-1 flex flex-col items-center justify-center px-4 py-6 max-w-lg mx-auto w-full">
+            <div className="w-full max-w-lg flex flex-col items-center justify-center gap-8">
+              <div className="w-28 h-28 rounded-full bg-gray-100 flex items-center justify-center mb-2">
+                <i className="ph-fill ph-info text-7xl text-gray-400"></i>
               </div>
-              <div className="text-center space-y-2">
-                <h2 className="text-3xl font-extrabold text-gray-900">Bu Link Kullanılmış</h2>
-                <p className="text-gray-500 text-lg">Bu geri bildirim linki daha önce kullanılmış. Her link sadece bir kez kullanılabilir.</p>
+              <div className="text-center space-y-4">
+                <h2 className="text-4xl font-extrabold text-gray-900">Bu Link Kullanılmış</h2>
+                <p className="text-gray-500 text-xl">Bu geri bildirim linki daha önce kullanılmış. Her link sadece bir kez kullanılabilir.</p>
               </div>
             </div>
           </main>
