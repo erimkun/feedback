@@ -150,8 +150,8 @@ export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormPro
           <div className="w-full max-w-lg flex flex-col items-center">
             {/* Logo Section */}
             <div className="w-full text-center mb-3">
-              <div className="bg-[#E42617] p-3 rounded-xl inline-block mb-3 shadow-lg shadow-[#E42617]/20">
-                <img src="/logo.png" alt="Logo" className="h-16 object-contain" />
+              <div className="bg-[#E42617] p-4 rounded-xl inline-block mb-3 shadow-lg shadow-[#E42617]/20">
+                <img src="/logo.png" alt="Logo" className="h-24 object-contain" />
               </div>
               <h1 className="text-xl font-extrabold text-gray-900">
                 Merhaba <span className="text-black">{targetName}</span>
@@ -193,7 +193,7 @@ export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormPro
                         <img
                           src={icon}
                           alt="Rating 5"
-                          className="w-8 h-8 transition-all"
+                          className="w-7 h-7 transition-all"
                           style={{
                             filter: selectedRating === value ? "none" : "grayscale(100%)",
                             opacity: selectedRating === value ? 1 : 0.5,
