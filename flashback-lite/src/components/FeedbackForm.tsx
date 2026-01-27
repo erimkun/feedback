@@ -119,6 +119,10 @@ export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormPro
         .rating-item.selected .ph-fill {
           transform: scale(1.15);
         }
+        .rating-item:hover .rating-svg,
+        .rating-item.selected .rating-svg {
+          transform: scale(1.15);
+        }
         .rating-item:hover p,
         .rating-item.selected p {
           font-weight: 700;
@@ -193,7 +197,7 @@ export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormPro
                         <img
                           src={icon}
                           alt="Rating 5"
-                          className="w-7 h-7 transition-all"
+                          className="w-6 h-6 transition-all rating-svg"
                           style={{
                             filter: selectedRating === value ? "none" : "grayscale(100%) brightness(1.3)",
                             opacity: selectedRating === value ? 1 : 0.35,
