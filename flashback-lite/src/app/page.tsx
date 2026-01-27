@@ -48,7 +48,7 @@ export default async function Home({
       {/* Footer */}
       <footer className="absolute bottom-0 p-8 text-center w-full z-10">
         <p className="text-white/60 text-[10px] font-bold uppercase tracking-wider">
-          © 2026 Üsküdar Belediyesi Kentsel Dönüşüm Müdürlüğü
+          © 2026 Üsküdar Yenileniyor
         </p>
       </footer>
     </div>
