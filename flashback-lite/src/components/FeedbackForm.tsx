@@ -144,7 +144,7 @@ export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormPro
             {/* Logo Section */}
             <div className="w-full text-center mb-4">
               <div className="bg-[#E42617] p-4 rounded-xl inline-block mb-4 shadow-lg shadow-[#E42617]/20">
-                <img src="/logo.png" alt="Logo" className="h-20 object-contain" />
+                <img src="/logo.png" alt="Logo" className="h-28 object-contain" />
               </div>
               <h1 className="text-2xl font-extrabold text-gray-900">
                 Merhaba <span className="text-black">{targetName}</span>
