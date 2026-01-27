@@ -199,8 +199,10 @@ export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormPro
                           alt="Rating 5"
                           className="w-6 h-6 transition-all rating-svg"
                           style={{
-                            filter: selectedRating === value ? "none" : "grayscale(100%) brightness(1.3)",
-                            opacity: selectedRating === value ? 1 : 0.35,
+                            filter: selectedRating === value 
+                              ? "invert(42%) sepia(93%) saturate(1352%) hue-rotate(87deg) brightness(95%) contrast(101%)" 
+                              : "grayscale(100%) brightness(1.5)",
+                            opacity: selectedRating === value ? 1 : 0.4,
                           }}
                         />
                       ) : (
