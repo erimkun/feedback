@@ -11,7 +11,7 @@ interface FeedbackFormProps {
 
 // Rating renkleri (1: kırmızı -> 5: yeşil)
 const ratingColors: Record<number, string> = {
-  1: "#FF0033", // Rich Red
+  1: "#E42617", // Üsküdar Kırmızı
   2: "#FF6600", // Vivid Orange
   3: "#FFCC00", // Golden Yellow
   4: "#99CC33", // Olive/Lime
@@ -20,7 +20,7 @@ const ratingColors: Record<number, string> = {
 
 // Phosphor icon isimleri
 const ratingIcons = [
-  { value: 1, icon: "ph-smiley-x-eyes" },
+  { value: 1, icon: "ph-smiley-angry" },
   { value: 2, icon: "ph-smiley-sad" },
   { value: 3, icon: "ph-smiley-meh" },
   { value: 4, icon: "ph-smiley" },
@@ -84,28 +84,22 @@ export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormPro
         <div className="bg-white min-h-dvh overflow-hidden flex flex-col font-['Manrope',sans-serif]">
           {/* Header */}
           <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md">
-            <div className="flex items-center p-4 justify-between max-w-md mx-auto w-full">
-              <div className="text-[#2e687a] flex size-10 shrink-0 items-center justify-start cursor-pointer">
-                <i className="ph-bold ph-x text-2xl"></i>
-              </div>
-              <h2 className="text-[#d63417] text-base font-extrabold leading-tight tracking-tight flex-1 text-center">
+            <div className="flex items-center p-6 justify-center max-w-lg mx-auto w-full">
+              <h2 className="text-[#E42617] text-xl font-extrabold leading-tight tracking-tight text-center">
                 Üsküdar Yenileniyor
               </h2>
-              <div className="size-10 flex items-center justify-end">
-                <i className="ph-bold ph-info text-2xl text-[#2e687a]/40"></i>
-              </div>
             </div>
           </header>
 
           {/* Main Content */}
-          <main className="flex-1 flex flex-col items-center justify-center p-6 max-w-md mx-auto w-full">
-            <div className="w-full max-w-md flex flex-col items-center justify-center gap-6">
-              <div className="w-24 h-24 rounded-full bg-green-100 flex items-center justify-center mb-2">
-                <i className="ph-fill ph-check-circle text-6xl text-green-500"></i>
+          <main className="flex-1 flex flex-col items-center justify-center px-4 py-6 max-w-lg mx-auto w-full">
+            <div className="w-full max-w-lg flex flex-col items-center justify-center gap-8">
+              <div className="w-28 h-28 rounded-full bg-green-100 flex items-center justify-center mb-2">
+                <i className="ph-fill ph-check-circle text-7xl text-green-500"></i>
               </div>
-              <div className="text-center space-y-2">
-                <h2 className="text-3xl font-extrabold text-gray-900">Teşekkür Ederiz!</h2>
-                <p className="text-gray-500 text-lg">Geri bildiriminiz başarıyla iletildi.</p>
+              <div className="text-center space-y-4">
+                <h2 className="text-4xl font-extrabold text-gray-900">Teşekkür Ederiz!</h2>
+                <p className="text-gray-500 text-xl">Geri bildiriminiz başarıyla iletildi.</p>
               </div>
             </div>
           </main>
@@ -138,74 +132,76 @@ export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormPro
         .rating-item.selected p {
           font-weight: 700;
         }
+        .rating-item[data-value="1"]:hover .ph-fill {
+          color: #E42617 !important;
+        }
         textarea:focus {
           outline: none;
-          border-color: #d63417;
-          box-shadow: 0 0 0 3px rgba(214, 52, 23, 0.1);
+          border-color: #E42617;
+          box-shadow: 0 0 0 3px rgba(228, 38, 23, 0.1);
+        }
+        html, body {
+          overflow-x: hidden;
+          max-width: 100vw;
         }
       `}</style>
       
       <div className="bg-white min-h-dvh overflow-hidden flex flex-col font-['Manrope',sans-serif]">
         {/* Header */}
         <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md">
-          <div className="flex items-center p-4 justify-between max-w-md mx-auto w-full">
-            <div className="text-[#2e687a] flex size-10 shrink-0 items-center justify-start cursor-pointer">
-              <i className="ph-bold ph-x text-2xl"></i>
-            </div>
-            <h2 className="text-[#d63417] text-base font-extrabold leading-tight tracking-tight flex-1 text-center">
+          <div className="flex items-center p-6 justify-center max-w-lg mx-auto w-full">
+            <h2 className="text-[#E42617] text-xl font-extrabold leading-tight tracking-tight text-center">
               Üsküdar Yenileniyor
             </h2>
-            <div className="size-10 flex items-center justify-end">
-              <i className="ph-bold ph-info text-2xl text-[#2e687a]/40"></i>
-            </div>
           </div>
         </header>
 
         {/* Main Content */}
-        <main className="flex-1 flex flex-col items-center justify-center p-6 max-w-md mx-auto w-full">
-          <div className="w-full max-w-md flex flex-col items-center">
+        <main className="flex-1 flex flex-col items-center justify-center px-4 py-6 max-w-lg mx-auto w-full">
+          <div className="w-full max-w-lg flex flex-col items-center">
             {/* Logo Section */}
-            <div className="w-full text-center mb-2">
-              <div className="bg-[#d63417] p-2 rounded-xl inline-block mb-3 shadow-lg shadow-[#d63417]/20">
-                <img src="/logo.png" alt="Logo" className="h-10 object-contain" />
+            <div className="w-full text-center mb-4">
+              <div className="bg-[#E42617] p-3 rounded-xl inline-block mb-4 shadow-lg shadow-[#E42617]/20">
+                <img src="/logo.png" alt="Logo" className="h-12 object-contain" />
               </div>
-              <h1 className="text-xl font-extrabold text-gray-900">
+              <h1 className="text-2xl font-extrabold text-gray-900">
                 Merhaba <span className="text-black">{targetName}</span>
               </h1>
             </div>
 
             {/* Card */}
-            <div className="w-full bg-white rounded-2xl shadow-xl shadow-[#2e687a]/5 p-5 flex flex-col gap-4 border border-gray-100">
+            <div className="w-full bg-white rounded-2xl shadow-xl shadow-[#2e687a]/5 p-6 flex flex-col gap-6 border border-gray-100">
               {/* Question */}
               <div className="text-center">
-                <h3 className="text-gray-900 text-base font-extrabold leading-tight">
+                <h3 className="text-gray-900 text-lg font-extrabold leading-relaxed">
                   Bugünkü Kentsel Dönüşüm planlama süreci deneyiminizi nasıl değerlendirirsiniz?
                 </h3>
-                <p className="text-gray-500 text-xs mt-2">
+                <p className="text-gray-500 text-sm mt-3">
                   Görüşleriniz mahallemizin geleceğini şekillendiriyor.
                 </p>
               </div>
 
               {/* Rating Icons */}
-              <div className="flex justify-between items-center px-1">
+              <div className="flex justify-between items-center px-2">
                 {ratingIcons.map(({ value, icon }) => (
                   <button
                     key={value}
                     type="button"
+                    data-value={value}
                     onClick={() => setSelectedRating(value)}
-                    className={`rating-item flex flex-col items-center gap-1 group outline-none ${
+                    className={`rating-item flex flex-col items-center gap-2 group outline-none ${
                       selectedRating === value ? "selected" : ""
                     }`}
                   >
                     <div
-                      className={`rounded-full w-12 h-12 flex items-center justify-center transition-all ${
+                      className={`rounded-full w-14 h-14 flex items-center justify-center transition-all ${
                         selectedRating === value
-                          ? "bg-[#d63417]/10"
-                          : "bg-[#f7f7f8] group-hover:bg-[#d63417]/10"
+                          ? "bg-[#E42617]/10"
+                          : "bg-[#f7f7f8] group-hover:bg-[#E42617]/10"
                       }`}
                     >
                       <i
-                        className={`ph-fill ${icon} text-3xl transition-colors`}
+                        className={`ph-fill ${icon} text-4xl transition-colors`}
                         style={{
                           color:
                             selectedRating === value
@@ -215,7 +211,7 @@ export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormPro
                       ></i>
                     </div>
                     <p
-                      className="text-[10px] font-bold transition-colors"
+                      className="text-xs font-bold transition-colors"
                       style={{
                         color:
                           selectedRating === value
@@ -230,17 +226,18 @@ export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormPro
               </div>
 
               {/* Comment Field */}
-              <div className="w-full flex flex-col gap-2">
-                <label className="text-gray-700 text-xs font-bold" htmlFor="comment">
+              <div className="w-full flex flex-col gap-3">
+                <label className="text-gray-700 text-sm font-bold" htmlFor="comment">
                   Eklemek istediğiniz bir not var mı?
                 </label>
                 <textarea
                   id="comment"
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
-                  className="w-full p-3 rounded-xl bg-gray-50 border border-gray-100 text-xs text-gray-900 placeholder:text-gray-400 focus:ring-0 transition-all resize-none"
+                  className="w-full p-4 rounded-xl bg-gray-50 border border-gray-100 text-base text-gray-900 placeholder:text-gray-400 focus:ring-0 transition-all resize-none box-border"
                   placeholder="Görüşlerinizi buraya yazabilirsiniz..."
-                  rows={2}
+                  rows={3}
+                  style={{ fontSize: '16px' }}
                 />
               </div>
 
@@ -252,12 +249,12 @@ export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormPro
               )}
 
               {/* Submit Button */}
-              <div className="pt-1">
+              <div className="pt-2">
                 <button
                   type="button"
                   onClick={handleSubmit}
                   disabled={!selectedRating || isSubmitting}
-                  className={`w-full flex cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 px-6 bg-[#d63417] text-white text-sm font-extrabold shadow-lg shadow-[#d63417]/20 active:scale-[0.98] transition-all ${
+                  className={`w-full flex cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 px-6 bg-[#E42617] text-white text-base font-extrabold shadow-lg shadow-[#E42617]/20 active:scale-[0.98] transition-all ${
                     !selectedRating || isSubmitting
                       ? "opacity-50 cursor-not-allowed"
                       : ""
