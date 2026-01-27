@@ -25,15 +25,6 @@ export default async function FeedbackPage({ params }: FeedbackPageProps) {
       <>
         <Script src="https://unpkg.com/@phosphor-icons/web" strategy="beforeInteractive" />
         <div className="bg-white min-h-dvh overflow-hidden flex flex-col font-['Manrope',sans-serif]">
-          {/* Header */}
-          <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md">
-            <div className="flex items-center p-6 justify-center max-w-lg mx-auto w-full">
-              <h2 className="text-[#E42617] text-xl font-extrabold leading-tight tracking-tight text-center">
-                Üsküdar Yenileniyor
-              </h2>
-            </div>
-          </header>
-
           {/* Main Content */}
           <main className="flex-1 flex flex-col items-center justify-center px-4 py-6 max-w-lg mx-auto w-full">
             <div className="w-full max-w-lg flex flex-col items-center justify-center gap-8">
@@ -50,7 +41,7 @@ export default async function FeedbackPage({ params }: FeedbackPageProps) {
           {/* Footer */}
           <footer className="p-8 text-center mt-auto">
             <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">
-              © 2024 Üsküdar Belediyesi Kentsel Dönüşüm Müdürlüğü
+              © 2026 Üsküdar Yenileniyor
             </p>
           </footer>
         </div>

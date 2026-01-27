@@ -20,11 +20,11 @@ const ratingColors: Record<number, string> = {
 
 // Phosphor icon isimleri
 const ratingIcons = [
-  { value: 1, icon: "ph-smiley-angry" },
-  { value: 2, icon: "ph-smiley-sad" },
-  { value: 3, icon: "ph-smiley-meh" },
-  { value: 4, icon: "ph-smiley" },
-  { value: 5, icon: "ph-smiley-wink" },
+  { value: 1, icon: "ph-smiley-blank", isEmoji: false },
+  { value: 2, icon: "ph-smiley-sad", isEmoji: false },
+  { value: 3, icon: "ph-smiley-meh", isEmoji: false },
+  { value: 4, icon: "ph-smiley", isEmoji: false },
+  { value: 5, icon: "😍", isEmoji: true },
 ];
 
 export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormProps) {
@@ -82,15 +82,6 @@ export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormPro
         <Script src="https://unpkg.com/@phosphor-icons/web" strategy="beforeInteractive" />
         <Script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js" strategy="beforeInteractive" />
         <div className="bg-white min-h-dvh overflow-hidden flex flex-col font-['Manrope',sans-serif]">
-          {/* Header */}
-          <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md">
-            <div className="flex items-center p-6 justify-center max-w-lg mx-auto w-full">
-              <h2 className="text-[#E42617] text-xl font-extrabold leading-tight tracking-tight text-center">
-                Üsküdar Yenileniyor
-              </h2>
-            </div>
-          </header>
-
           {/* Main Content */}
           <main className="flex-1 flex flex-col items-center justify-center px-4 py-6 max-w-lg mx-auto w-full">
             <div className="w-full max-w-lg flex flex-col items-center justify-center gap-8">
@@ -107,7 +98,7 @@ export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormPro
           {/* Footer */}
           <footer className="p-8 text-center mt-auto">
             <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">
-              © 2026 Üsküdar Belediyesi Kentsel Dönüşüm Müdürlüğü
+              © 2026 Üsküdar Yenileniyor
             </p>
           </footer>
         </div>
@@ -147,15 +138,6 @@ export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormPro
       `}</style>
       
       <div className="bg-white min-h-dvh overflow-hidden flex flex-col font-['Manrope',sans-serif]">
-        {/* Header */}
-        <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md">
-          <div className="flex items-center p-6 justify-center max-w-lg mx-auto w-full">
-            <h2 className="text-[#E42617] text-xl font-extrabold leading-tight tracking-tight text-center">
-              Üsküdar Yenileniyor
-            </h2>
-          </div>
-        </header>
-
         {/* Main Content */}
         <main className="flex-1 flex flex-col items-center justify-center px-4 py-6 max-w-lg mx-auto w-full">
           <div className="w-full max-w-lg flex flex-col items-center">
@@ -183,7 +165,7 @@ export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormPro
 
               {/* Rating Icons */}
               <div className="flex justify-between items-center px-2">
-                {ratingIcons.map(({ value, icon }) => (
+                {ratingIcons.map(({ value, icon, isEmoji }) => (
                   <button
                     key={value}
                     type="button"
@@ -200,15 +182,27 @@ export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormPro
                           : "bg-[#f7f7f8] group-hover:bg-[#E42617]/10"
                       }`}
                     >
-                      <i
-                        className={`ph-fill ${icon} text-4xl transition-colors`}
-                        style={{
-                          color:
-                            selectedRating === value
-                              ? ratingColors[value]
-                              : "#9ca3af",
-                        }}
-                      ></i>
+                      {isEmoji ? (
+                        <span 
+                          className="text-4xl transition-all"
+                          style={{
+                            filter: selectedRating === value ? "none" : "grayscale(100%)",
+                            opacity: selectedRating === value ? 1 : 0.6,
+                          }}
+                        >
+                          {icon}
+                        </span>
+                      ) : (
+                        <i
+                          className={`ph-fill ${icon} text-4xl transition-colors`}
+                          style={{
+                            color:
+                              selectedRating === value
+                                ? ratingColors[value]
+                                : "#9ca3af",
+                          }}
+                        ></i>
+                      )}
                     </div>
                     <p
                       className="text-xs font-bold transition-colors"
@@ -270,7 +264,7 @@ export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormPro
         {/* Footer */}
         <footer className="p-8 text-center mt-auto">
           <p className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">
-            © 2026 Üsküdar Belediyesi Kentsel Dönüşüm Müdürlüğü
+            © 2026 Üsküdar Yenileniyor
           </p>
         </footer>
       </div>
