@@ -1,5 +1,6 @@
 import { getFeedbackStats, getRecentFeedback } from "@/app/actions/admin";
 import CreateLinkForm from "@/components/admin/CreateLinkForm";
+import BulkUpload from "@/components/admin/BulkUpload";
 import FeedbackRow from "@/components/admin/FeedbackRow";
 import FeedbackCard from "@/components/admin/FeedbackCard";
 
@@ -27,6 +28,9 @@ export default async function AdminDashboard() {
 
             {/* Create Link Section */}
             <CreateLinkForm />
+
+            {/* Bulk Upload Section */}
+            <BulkUpload />
 
             {/* Recent Feedback Section - Desktop Table */}
             <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">

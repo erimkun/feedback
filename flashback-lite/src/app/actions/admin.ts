@@ -126,3 +126,94 @@ export async function sendSMSToFeedback(feedbackId: string, phoneNumber: string)
         return { success: false, error: "SMS gönderilirken bir hata oluştu" };
     }
 }
+
+export interface BulkContactItem {
+    id: string;
+    name: string;
+    phone: string;
+    office: string;
+    isValid: boolean;
+    error?: string;
+}
+
+export interface BulkSendResult {
+    id: string;
+    name: string;
+    success: boolean;
+    error?: string;
+    link?: string;
+}
+
+export async function createBulkFeedbackLinks(contacts: BulkContactItem[]): Promise<{
+    success: boolean;
+    results: BulkSendResult[];
+    totalSuccess: number;
+    totalFailed: number;
+}> {
+    const results: BulkSendResult[] = [];
+    let totalSuccess = 0;
+    let totalFailed = 0;
+
+    for (const contact of contacts) {
+        if (!contact.isValid) {
+            results.push({
+                id: contact.id,
+                name: contact.name,
+                success: false,
+                error: contact.error || "Geçersiz veri",
+            });
+            totalFailed++;
+            continue;
+        }
+
+        try {
+            const id = nanoid(10);
+            await prisma.feedback.create({
+                data: {
+                    id,
+                    targetName: contact.name,
+                    office: contact.office || null,
+                },
+            });
+
+            const link = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/feedback/${id}`;
+            const smsResult = await sendSMS(contact.phone, link, contact.name, contact.office);
+
+            if (smsResult.success) {
+                results.push({
+                    id: contact.id,
+                    name: contact.name,
+                    success: true,
+                    link,
+                });
+                totalSuccess++;
+            } else {
+                results.push({
+                    id: contact.id,
+                    name: contact.name,
+                    success: false,
+                    error: smsResult.error || "SMS gönderilemedi",
+                    link,
+                });
+                totalFailed++;
+            }
+        } catch (error) {
+            console.error("Bulk create error for", contact.name, error);
+            results.push({
+                id: contact.id,
+                name: contact.name,
+                success: false,
+                error: "Link oluşturulurken hata oluştu",
+            });
+            totalFailed++;
+        }
+    }
+
+    revalidatePath("/admin");
+    return {
+        success: totalFailed === 0,
+        results,
+        totalSuccess,
+        totalFailed,
+    };
+}
