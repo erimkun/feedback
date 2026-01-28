@@ -42,7 +42,11 @@ export interface AdvancedStats {
     positiveCount: number;
     negativeCount: number;
     neutralCount: number;
-    officeStats: { office: string; count: number; avgRating: number; positiveCount: number }[];
+    npsScore: number;
+    npsPromoters: number;
+    npsPassives: number;
+    npsDetractors: number;
+    officeStats: { office: string; count: number; avgRating: number; positiveCount: number; npsScore: number }[];
     timeSeriesData: { date: string; count: number; avgRating: number; positiveCount: number; negativeCount: number }[];
 }
 
@@ -89,14 +93,26 @@ export async function getAdvancedStats(
     const neutralCount = withRating.filter(f => f.rating === 3).length;
     const negativeCount = withRating.filter(f => (f.rating || 0) <= 2).length;
 
+    // NPS Score calculation
+    // Promoters (5), Passives (3-4), Detractors (1-2)
+    // NPS = % Promoters - % Detractors
+    const npsPromoters = withRating.filter(f => f.rating === 5).length;
+    const npsPassives = withRating.filter(f => f.rating === 3 || f.rating === 4).length;
+    const npsDetractors = withRating.filter(f => (f.rating || 0) <= 2).length;
+    const npsScore = used > 0 
+        ? Math.round(((npsPromoters / used) - (npsDetractors / used)) * 100)
+        : 0;
+
     // Office stats
-    const officeMap = new Map<string, { count: number; totalRating: number; positiveCount: number }>();
+    const officeMap = new Map<string, { count: number; totalRating: number; positiveCount: number; promoters: number; detractors: number }>();
     withRating.forEach(f => {
         const off = f.office || "Belirtilmemiş";
-        const current = officeMap.get(off) || { count: 0, totalRating: 0, positiveCount: 0 };
+        const current = officeMap.get(off) || { count: 0, totalRating: 0, positiveCount: 0, promoters: 0, detractors: 0 };
         current.count++;
         current.totalRating += f.rating || 0;
         if ((f.rating || 0) >= 4) current.positiveCount++;
+        if (f.rating === 5) current.promoters++;
+        if ((f.rating || 0) <= 2) current.detractors++;
         officeMap.set(off, current);
     });
 
@@ -105,6 +121,7 @@ export async function getAdvancedStats(
         count: data.count,
         avgRating: data.count > 0 ? data.totalRating / data.count : 0,
         positiveCount: data.positiveCount,
+        npsScore: data.count > 0 ? Math.round(((data.promoters / data.count) - (data.detractors / data.count)) * 100) : 0,
     })).sort((a, b) => b.count - a.count);
 
     // Time series - group by day
@@ -134,6 +151,10 @@ export async function getAdvancedStats(
         positiveCount,
         negativeCount,
         neutralCount,
+        npsScore,
+        npsPromoters,
+        npsPassives,
+        npsDetractors,
         officeStats,
         timeSeriesData,
     };
@@ -149,6 +170,162 @@ export async function getRecentFeedback() {
     return feedback.map(item => ({
         ...item,
         createdAt: item.createdAt.toISOString(),
+    }));
+}
+
+// Get negative feedbacks (rating 1-2) for ticket system
+export async function getNegativeFeedbacks(
+    startDate?: string,
+    endDate?: string,
+    office?: string
+) {
+    const whereClause: Record<string, unknown> = { 
+        isUsed: true,
+        rating: { lte: 2 }
+    };
+    
+    if (startDate && endDate) {
+        whereClause.createdAt = {
+            gte: new Date(startDate),
+            lte: new Date(endDate + "T23:59:59.999Z"),
+        };
+    }
+    
+    if (office && office !== "all") {
+        whereClause.office = office;
+    }
+
+    const feedback = await prisma.feedback.findMany({
+        where: whereClause,
+        orderBy: { createdAt: "desc" },
+    });
+    
+    return feedback.map(item => ({
+        ...item,
+        createdAt: item.createdAt.toISOString(),
+    }));
+}
+
+// Get comparison data between two periods
+export async function getComparisonStats(
+    period1Start: string,
+    period1End: string,
+    period2Start: string,
+    period2End: string,
+    office?: string
+): Promise<{
+    period1: AdvancedStats;
+    period2: AdvancedStats;
+    comparison: {
+        avgRatingChange: number;
+        npsChange: number;
+        positiveRateChange: number;
+        volumeChange: number;
+    };
+}> {
+    const period1Stats = await getAdvancedStats(period1Start, period1End, office);
+    const period2Stats = await getAdvancedStats(period2Start, period2End, office);
+
+    const period1PositiveRate = period1Stats.used > 0 ? (period1Stats.positiveCount / period1Stats.used) * 100 : 0;
+    const period2PositiveRate = period2Stats.used > 0 ? (period2Stats.positiveCount / period2Stats.used) * 100 : 0;
+
+    return {
+        period1: period1Stats,
+        period2: period2Stats,
+        comparison: {
+            avgRatingChange: period2Stats.averageRating - period1Stats.averageRating,
+            npsChange: period2Stats.npsScore - period1Stats.npsScore,
+            positiveRateChange: period2PositiveRate - period1PositiveRate,
+            volumeChange: period2Stats.used - period1Stats.used,
+        },
+    };
+}
+
+// Get monthly targets and progress
+export interface MonthlyTarget {
+    month: string;
+    targetNps: number;
+    targetAvgRating: number;
+    targetPositiveRate: number;
+    actualNps: number;
+    actualAvgRating: number;
+    actualPositiveRate: number;
+    totalFeedbacks: number;
+}
+
+export async function getMonthlyProgress(year: number, month: number): Promise<MonthlyTarget> {
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 0, 23, 59, 59);
+    
+    const stats = await getAdvancedStats(
+        startDate.toISOString().split('T')[0],
+        endDate.toISOString().split('T')[0]
+    );
+    
+    const positiveRate = stats.used > 0 ? (stats.positiveCount / stats.used) * 100 : 0;
+    
+    // Default targets (can be made configurable later)
+    const targets = {
+        nps: 50,
+        avgRating: 4.0,
+        positiveRate: 75,
+    };
+    
+    return {
+        month: `${year}-${String(month).padStart(2, '0')}`,
+        targetNps: targets.nps,
+        targetAvgRating: targets.avgRating,
+        targetPositiveRate: targets.positiveRate,
+        actualNps: stats.npsScore,
+        actualAvgRating: stats.averageRating,
+        actualPositiveRate: positiveRate,
+        totalFeedbacks: stats.used,
+    };
+}
+
+// Get calendar data for feedback visualization
+export async function getCalendarData(year: number, month: number) {
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 0, 23, 59, 59);
+    
+    const feedback = await prisma.feedback.findMany({
+        where: {
+            isUsed: true,
+            createdAt: {
+                gte: startDate,
+                lte: endDate,
+            },
+        },
+        select: {
+            id: true,
+            targetName: true,
+            rating: true,
+            office: true,
+            createdAt: true,
+        },
+        orderBy: { createdAt: "asc" },
+    });
+    
+    // Group by day
+    const dayMap = new Map<number, { count: number; avgRating: number; feedbacks: typeof feedback }>();
+    
+    feedback.forEach(f => {
+        const day = f.createdAt.getDate();
+        const current = dayMap.get(day) || { count: 0, avgRating: 0, feedbacks: [] };
+        current.feedbacks.push(f);
+        current.count = current.feedbacks.length;
+        current.avgRating = current.feedbacks.reduce((sum, fb) => sum + (fb.rating || 0), 0) / current.count;
+        dayMap.set(day, current);
+    });
+    
+    return Array.from(dayMap.entries()).map(([day, data]) => ({
+        day,
+        count: data.count,
+        avgRating: data.avgRating,
+        feedbacks: data.feedbacks.map(f => ({
+            ...f,
+            createdAt: f.createdAt.toISOString(),
+        })),
     }));
 }
 

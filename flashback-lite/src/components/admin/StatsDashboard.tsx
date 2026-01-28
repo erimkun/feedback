@@ -19,6 +19,12 @@ import {
     Cell,
 } from "recharts";
 import { getAdvancedStats, getOfficeList, AdvancedStats } from "@/app/actions/admin";
+import NpsGauge from "./NpsGauge";
+import ComparisonChart from "./ComparisonChart";
+import TargetProgress from "./TargetProgress";
+import FeedbackCalendar from "./FeedbackCalendar";
+import NegativeTickets from "./NegativeTickets";
+import Modal from "./Modal";
 
 type TimeRange = "7d" | "30d" | "thisMonth" | "lastMonth" | "90d" | "all";
 
@@ -39,6 +45,7 @@ export default function StatsDashboard() {
     const [timeRange, setTimeRange] = useState<TimeRange>("30d");
     const [customStart, setCustomStart] = useState("");
     const [customEnd, setCustomEnd] = useState("");
+    const [showNegativeTickets, setShowNegativeTickets] = useState(false);
 
     const getDateRange = (range: TimeRange): { start: string; end: string } => {
         const today = new Date();
@@ -115,6 +122,16 @@ export default function StatsDashboard() {
 
     return (
         <div className="space-y-6">
+            {/* Negative Tickets Modal */}
+            <Modal
+                isOpen={showNegativeTickets}
+                onClose={() => setShowNegativeTickets(false)}
+                title="Olumsuz Geri Bildirimler"
+                size="xl"
+            >
+                <NegativeTickets onClose={() => setShowNegativeTickets(false)} />
+            </Modal>
+
             {/* Filters */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                 <div className="flex flex-wrap gap-4 items-center">
@@ -161,7 +178,7 @@ export default function StatsDashboard() {
             </div>
 
             {/* Summary Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 md:gap-4">
                 <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
                     <h3 className="text-gray-500 text-xs font-medium uppercase tracking-wider">Toplam</h3>
                     <p className="text-2xl font-bold text-gray-900 mt-1">{stats?.total || 0}</p>
@@ -175,6 +192,12 @@ export default function StatsDashboard() {
                     <p className="text-2xl font-bold text-blue-600 mt-1">{stats?.averageRating.toFixed(1) || "0.0"}</p>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                    <h3 className="text-gray-500 text-xs font-medium uppercase tracking-wider">NPS Skoru</h3>
+                    <p className={`text-2xl font-bold mt-1 ${(stats?.npsScore || 0) >= 0 ? "text-green-600" : "text-red-600"}`}>
+                        {(stats?.npsScore || 0) > 0 ? "+" : ""}{stats?.npsScore || 0}
+                    </p>
+                </div>
+                <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
                     <h3 className="text-gray-500 text-xs font-medium uppercase tracking-wider">Olumlu</h3>
                     <p className="text-2xl font-bold text-green-600 mt-1">{stats?.positiveCount || 0}</p>
                 </div>
@@ -182,10 +205,18 @@ export default function StatsDashboard() {
                     <h3 className="text-gray-500 text-xs font-medium uppercase tracking-wider">Nötr</h3>
                     <p className="text-2xl font-bold text-yellow-600 mt-1">{stats?.neutralCount || 0}</p>
                 </div>
-                <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-                    <h3 className="text-gray-500 text-xs font-medium uppercase tracking-wider">Olumsuz</h3>
+                <button 
+                    onClick={() => setShowNegativeTickets(true)}
+                    className="bg-white p-4 rounded-lg shadow-sm border border-red-200 hover:border-red-400 hover:bg-red-50 transition text-left"
+                >
+                    <h3 className="text-red-500 text-xs font-medium uppercase tracking-wider flex items-center gap-1">
+                        Olumsuz
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-3 h-3">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
+                        </svg>
+                    </h3>
                     <p className="text-2xl font-bold text-red-600 mt-1">{stats?.negativeCount || 0}</p>
-                </div>
+                </button>
             </div>
 
             {/* Charts Row */}
@@ -322,6 +353,7 @@ export default function StatsDashboard() {
                                         <th className="px-4 py-2 text-left font-medium text-gray-700">Ofis</th>
                                         <th className="px-4 py-2 text-center font-medium text-gray-700">Değerlendirme</th>
                                         <th className="px-4 py-2 text-center font-medium text-gray-700">Ort. Puan</th>
+                                        <th className="px-4 py-2 text-center font-medium text-gray-700">NPS</th>
                                         <th className="px-4 py-2 text-center font-medium text-gray-700">Olumlu %</th>
                                     </tr>
                                 </thead>
@@ -340,6 +372,14 @@ export default function StatsDashboard() {
                                             </td>
                                             <td className="px-4 py-2 text-center">
                                                 <span className={`font-medium ${
+                                                    office.npsScore >= 50 ? "text-green-600" :
+                                                    office.npsScore >= 0 ? "text-yellow-600" : "text-red-600"
+                                                }`}>
+                                                    {office.npsScore > 0 ? "+" : ""}{office.npsScore}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-2 text-center">
+                                                <span className={`font-medium ${
                                                     (office.positiveCount / office.count * 100) >= 70 ? "text-green-600" :
                                                     (office.positiveCount / office.count * 100) >= 50 ? "text-yellow-600" : "text-red-600"
                                                 }`}>
@@ -354,6 +394,26 @@ export default function StatsDashboard() {
                     </div>
                 </div>
             )}
+
+            {/* NPS Gauge */}
+            {stats && (
+                <NpsGauge
+                    score={stats.npsScore}
+                    promoters={stats.npsPromoters}
+                    passives={stats.npsPassives}
+                    detractors={stats.npsDetractors}
+                    total={stats.used}
+                />
+            )}
+
+            {/* Target Progress & Calendar Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <TargetProgress />
+                <FeedbackCalendar />
+            </div>
+
+            {/* Comparison Chart */}
+            <ComparisonChart />
         </div>
     );
 }
