@@ -71,12 +71,13 @@ export async function sendSMS(
   }
 
   try {
+    // Posta Güvercini API format - büyük harfli key'ler
     const payload = {
-      username,
-      password,
-      sender: "USKUDARBLD", // Sender ID - değiştirilebilir
-      receiver: formattedPhone,  // Tek numara için string
-      message,
+      Username: username,
+      Password: password,
+      Sender: "USKUDARBLD",
+      Receiver: formattedPhone,
+      Message: message,
     };
 
     console.log("[SMS] Sending to:", formattedPhone);
