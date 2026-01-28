@@ -61,7 +61,7 @@ export async function createFeedbackLink(targetName: string, phoneNumber?: strin
         // Send SMS if phone number is provided
         let smsResult = null;
         if (phoneNumber) {
-            smsResult = await sendSMS(phoneNumber, link);
+            smsResult = await sendSMS(phoneNumber, link, targetName);
         }
 
         revalidatePath("/admin");

@@ -19,14 +19,15 @@ interface SMSSendPayload {
 
 export async function sendSMS(
   phoneNumber: string,
-  feedbackLink: string
+  feedbackLink: string,
+  targetName: string
 ): Promise<SMSResponse> {
   const username = process.env.SMS_API_USERNAME;
   const password = process.env.SMS_API_PASSWORD;
   const apiUrl = process.env.SMS_API_URL;
   const testMode = process.env.SMS_TEST_MODE === "true";
   const messageTemplate =
-    process.env.SMS_MESSAGE_TEMPLATE || "Bizi değerlendirin: {link}";
+    process.env.SMS_MESSAGE_TEMPLATE || "Sayın {name}, Üsküdar Yenileniyor kapsamında almış olduğunuz hizmeti değerlendirmek için lütfen linke tıklayınız. {link}";
 
   console.log("[SMS Debug] Config check:", {
     hasUsername: !!username,
@@ -56,8 +57,10 @@ export async function sendSMS(
     };
   }
 
-  // Replace {link} placeholder with actual link
-  const message = messageTemplate.replace("{link}", feedbackLink);
+  // Replace placeholders with actual values
+  const message = messageTemplate
+    .replace("{name}", targetName)
+    .replace("{link}", feedbackLink);
 
   // Test mode - don't actually send SMS
   if (testMode) {
