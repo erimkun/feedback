@@ -75,11 +75,12 @@ export async function sendSMS(
       username,
       password,
       sender: "USKUDARBLD", // Sender ID - değiştirilebilir
-      phone: [formattedPhone],
+      receiver: formattedPhone,  // Tek numara için string
       message,
     };
 
     console.log("[SMS] Sending to:", formattedPhone);
+    console.log("[SMS] Payload:", JSON.stringify(payload, null, 2));
 
     const response = await fetch(apiUrl, {
       method: "POST",
