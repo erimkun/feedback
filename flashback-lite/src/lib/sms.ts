@@ -113,8 +113,10 @@ export async function sendSMS(
     }
 
     // Posta Güvercini API response format check
-    // Genellikle: { "status": "success", "message_id": "..." } veya { "error": "..." }
+    // StatusCode 200 = başarılı
     if (
+      data.StatusCode === 200 ||
+      data.statusCode === 200 ||
       data.status === "success" ||
       data.status === "ok" ||
       data.code === 0 ||
@@ -128,7 +130,7 @@ export async function sendSMS(
         message: "SMS başarıyla gönderildi",
       };
     } else {
-      const errorMsg = data.message || data.error || data.description || data.error_description || JSON.stringify(data);
+      const errorMsg = data.StatusDescription || data.message || data.error || data.description || data.error_description || JSON.stringify(data);
       console.error("[SMS] API Error:", errorMsg);
       return {
         success: false,
