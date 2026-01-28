@@ -33,7 +33,7 @@ export default function RootLayout({
         <meta name="color-scheme" content="light only" />
         <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
       </head>
-      <body className="bg-white font-['Manrope',sans-serif] text-gray-900 antialiased overflow-hidden" style={{ backgroundColor: '#ffffff' }}>
+      <body className="bg-white font-['Manrope',sans-serif] text-gray-900 antialiased" style={{ backgroundColor: '#ffffff' }}>
         {children}
       </body>
     </html>

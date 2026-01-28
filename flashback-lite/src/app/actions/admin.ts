@@ -90,3 +90,39 @@ export async function deleteFeedback(id: string) {
         return { success: false, error: "Silme işlemi sırasında hata oluştu" };
     }
 }
+
+export async function sendSMSToFeedback(feedbackId: string, phoneNumber: string) {
+    if (!feedbackId) return { success: false, error: "Feedback ID gerekli" };
+    if (!phoneNumber) return { success: false, error: "Telefon numarası gerekli" };
+
+    // Validate phone number
+    if (!isValidPhoneNumber(phoneNumber)) {
+        return { success: false, error: "Geçersiz telefon numarası formatı" };
+    }
+
+    try {
+        const feedback = await prisma.feedback.findUnique({
+            where: { id: feedbackId },
+            select: {
+                id: true,
+                targetName: true,
+                office: true,
+            },
+        });
+
+        if (!feedback) {
+            return { success: false, error: "Geri bildirim bulunamadı" };
+        }
+
+        const link = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/feedback/${feedbackId}`;
+        const smsResult = await sendSMS(phoneNumber, link, feedback.targetName, feedback.office ?? undefined);
+
+        return {
+            success: smsResult.success,
+            error: smsResult.error,
+        };
+    } catch (error) {
+        console.error("SMS send error:", error);
+        return { success: false, error: "SMS gönderilirken bir hata oluştu" };
+    }
+}
