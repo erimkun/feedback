@@ -24,7 +24,7 @@ export default async function FeedbackPage({ params }: FeedbackPageProps) {
     return (
       <>
         <Script src="https://unpkg.com/@phosphor-icons/web" strategy="beforeInteractive" />
-        <div className="bg-white min-h-dvh overflow-hidden flex flex-col font-['Manrope',sans-serif]">
+        <div className="bg-white h-[100dvh] overflow-hidden flex flex-col font-['Manrope',sans-serif] fixed inset-0">
           {/* Main Content */}
           <main className="flex-1 flex flex-col items-center justify-center px-4 py-6 max-w-lg mx-auto w-full">
             <div className="w-full max-w-lg flex flex-col items-center justify-center gap-8">

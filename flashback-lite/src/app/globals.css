@@ -18,7 +18,6 @@ body {
   background: #ffffff !important;
   color: var(--foreground);
   font-family: 'Inter', Arial, Helvetica, sans-serif;
-  min-height: max(884px, 100dvh);
 }
 
 .material-symbols-outlined {
