@@ -71,12 +71,12 @@ export async function sendSMS(
   }
 
   try {
-    // Posta Güvercini API format - büyük harfli key'ler
+    // Posta Güvercini API format - Send_1_N endpoint için
     const payload = {
       Username: username,
       Password: password,
       Sender: "USKUDARBLD",
-      Receiver: formattedPhone,
+      Receivers: [formattedPhone],  // Array olarak çoğul
       Message: message,
     };
 
