@@ -28,7 +28,19 @@ export async function sendSMS(
   const messageTemplate =
     process.env.SMS_MESSAGE_TEMPLATE || "Bizi değerlendirin: {link}";
 
+  console.log("[SMS Debug] Config check:", {
+    hasUsername: !!username,
+    hasPassword: !!password,
+    hasApiUrl: !!apiUrl,
+    testMode,
+  });
+
   if (!username || !password || !apiUrl) {
+    console.error("[SMS Error] Missing config:", {
+      username: username ? "set" : "MISSING",
+      password: password ? "set" : "MISSING",
+      apiUrl: apiUrl ? "set" : "MISSING",
+    });
     return {
       success: false,
       error: "SMS API yapılandırması eksik",
@@ -59,13 +71,15 @@ export async function sendSMS(
   }
 
   try {
-    const payload: SMSSendPayload = {
+    const payload = {
       username,
       password,
-      sender: "MSGSERVICE", // Default sender ID
+      sender: "USKUDARBLD", // Sender ID - değiştirilebilir
       phone: [formattedPhone],
       message,
     };
+
+    console.log("[SMS] Sending to:", formattedPhone);
 
     const response = await fetch(apiUrl, {
       method: "POST",
@@ -75,26 +89,52 @@ export async function sendSMS(
       body: JSON.stringify(payload),
     });
 
+    const responseText = await response.text();
+    console.log("[SMS] API Response status:", response.status);
+    console.log("[SMS] API Response body:", responseText);
+
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      return {
+        success: false,
+        error: `HTTP ${response.status}: ${responseText}`,
+      };
     }
 
-    const data = await response.json();
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch {
+      return {
+        success: false,
+        error: `Geçersiz API yanıtı: ${responseText.substring(0, 100)}`,
+      };
+    }
 
-    // Check API response (adjust based on actual API response format)
-    if (data.status === "success" || data.code === 0 || data.success) {
+    // Posta Güvercini API response format check
+    // Genellikle: { "status": "success", "message_id": "..." } veya { "error": "..." }
+    if (
+      data.status === "success" ||
+      data.status === "ok" ||
+      data.code === 0 ||
+      data.code === "0" ||
+      data.success === true ||
+      data.result === "success" ||
+      data.message_id
+    ) {
       return {
         success: true,
         message: "SMS başarıyla gönderildi",
       };
     } else {
+      const errorMsg = data.message || data.error || data.description || data.error_description || JSON.stringify(data);
+      console.error("[SMS] API Error:", errorMsg);
       return {
         success: false,
-        error: data.message || data.error || "SMS gönderilemedi",
+        error: errorMsg,
       };
     }
   } catch (error) {
-    console.error("SMS sending error:", error);
+    console.error("[SMS] Exception:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "SMS gönderilemedi",
