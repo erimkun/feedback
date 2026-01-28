@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { sendSMS, isValidPhoneNumber } from "@/lib/sms";
 import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
 
@@ -38,8 +39,13 @@ export async function getRecentFeedback() {
     }));
 }
 
-export async function createFeedbackLink(targetName: string) {
+export async function createFeedbackLink(targetName: string, phoneNumber?: string) {
     if (!targetName) return { error: "İsim gerekli" };
+
+    // Validate phone number if provided
+    if (phoneNumber && !isValidPhoneNumber(phoneNumber)) {
+        return { error: "Geçersiz telefon numarası formatı" };
+    }
 
     try {
         const id = nanoid(10);
@@ -49,8 +55,22 @@ export async function createFeedbackLink(targetName: string) {
                 targetName,
             },
         });
+
+        const link = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/feedback/${id}`;
+
+        // Send SMS if phone number is provided
+        let smsResult = null;
+        if (phoneNumber) {
+            smsResult = await sendSMS(phoneNumber, link);
+        }
+
         revalidatePath("/admin");
-        return { success: true, link: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/feedback/${id}` };
+        return { 
+            success: true, 
+            link,
+            smsSent: smsResult?.success || false,
+            smsError: smsResult?.error
+        };
     } catch (error) {
         console.error("Link creation error:", error);
         return { error: "Link oluşturulurken bir hata oluştu" };
