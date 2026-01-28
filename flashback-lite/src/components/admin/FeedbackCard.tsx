@@ -1,7 +1,7 @@
 "use client";
 
 import { format } from "date-fns";
-import { useTransition } from "react";
+import { useTransition, useState, useEffect } from "react";
 import { deleteFeedback } from "@/app/actions/admin";
 
 interface FeedbackCardProps {
@@ -16,6 +16,11 @@ interface FeedbackCardProps {
 
 export default function FeedbackCard({ item }: FeedbackCardProps) {
     const [isPending, startTransition] = useTransition();
+    const [formattedDate, setFormattedDate] = useState("");
+
+    useEffect(() => {
+        setFormattedDate(format(new Date(item.createdAt), "dd MMM yyyy HH:mm"));
+    }, [item.createdAt]);
 
     const handleDelete = () => {
         if (confirm("Bu geri bildirimi silmek istediğinize emin misiniz?")) {
@@ -24,8 +29,6 @@ export default function FeedbackCard({ item }: FeedbackCardProps) {
             });
         }
     };
-
-    const formattedDate = format(new Date(item.createdAt), "dd MMM yyyy HH:mm");
 
     return (
         <div className={`bg-white rounded-lg shadow-sm border border-gray-200 p-4 ${isPending ? "opacity-50" : ""}`}>

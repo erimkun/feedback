@@ -1,7 +1,7 @@
 "use client";
 
 import { format } from "date-fns";
-import { useTransition } from "react";
+import { useTransition, useState, useEffect } from "react";
 import { deleteFeedback } from "@/app/actions/admin";
 
 interface FeedbackRowProps {
@@ -16,6 +16,11 @@ interface FeedbackRowProps {
 
 export default function FeedbackRow({ item }: FeedbackRowProps) {
     const [isPending, startTransition] = useTransition();
+    const [formattedDate, setFormattedDate] = useState("");
+
+    useEffect(() => {
+        setFormattedDate(format(new Date(item.createdAt), "dd MMM yyyy HH:mm"));
+    }, [item.createdAt]);
 
     const handleDelete = () => {
         if (confirm("Bu geri bildirimi silmek istediğinize emin misiniz?")) {
@@ -24,8 +29,6 @@ export default function FeedbackRow({ item }: FeedbackRowProps) {
             });
         }
     };
-
-    const formattedDate = format(new Date(item.createdAt), "dd MMM yyyy HH:mm");
 
     return (
         <tr className={`hover:bg-gray-50 transition ${isPending ? "opacity-50" : ""}`}>
