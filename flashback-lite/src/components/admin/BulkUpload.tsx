@@ -53,7 +53,10 @@ export default function BulkUpload() {
                 // Try different column name variations
                 const name = row["AD-SOYAD"] || row["AD SOYAD"] || row["İSİM"] || row["ADI SOYADI"] || row["AD"] || "";
                 const rawPhone = row["TEL"] || row["TELEFON"] || row["TEL NO"] || row["TELEFON NO"] || "";
-                const office = row["GÖRÜŞME YAPILAN OFİS"] || row["OFİS"] || row["OFFICE"] || row["ŞUBE"] || "";
+                const rawOffice = row["GÖRÜŞME YAPILAN OFİS"] || row["OFİS"] || row["OFFICE"] || row["ŞUBE"] || "";
+                
+                // Extract only the first word from office (e.g., "Merkez Ofis" -> "Merkez")
+                const office = rawOffice.trim().split(/\s+/)[0] || "";
 
                 const phone = normalizePhone(rawPhone);
                 const isPhoneValid = isValidPhoneNumber(phone);
@@ -70,7 +73,7 @@ export default function BulkUpload() {
                     id: `row-${index}`,
                     name: name.trim(),
                     phone,
-                    office: office.trim(),
+                    office,
                     isValid: isNameValid && isPhoneValid,
                     error: errorMsg,
                 };
