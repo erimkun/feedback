@@ -39,7 +39,7 @@ export async function getRecentFeedback() {
     }));
 }
 
-export async function createFeedbackLink(targetName: string, phoneNumber?: string) {
+export async function createFeedbackLink(targetName: string, phoneNumber?: string, office?: string) {
     if (!targetName) return { error: "İsim gerekli" };
 
     // Validate phone number if provided
@@ -53,6 +53,7 @@ export async function createFeedbackLink(targetName: string, phoneNumber?: strin
             data: {
                 id,
                 targetName,
+                office: office || null,
             },
         });
 
@@ -61,7 +62,7 @@ export async function createFeedbackLink(targetName: string, phoneNumber?: strin
         // Send SMS if phone number is provided
         let smsResult = null;
         if (phoneNumber) {
-            smsResult = await sendSMS(phoneNumber, link, targetName);
+            smsResult = await sendSMS(phoneNumber, link, targetName, office);
         }
 
         revalidatePath("/admin");

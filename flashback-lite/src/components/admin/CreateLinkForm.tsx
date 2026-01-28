@@ -3,6 +3,14 @@
 import { useState, useTransition } from "react";
 import { createFeedbackLink } from "@/app/actions/admin";
 
+const OFFICES = [
+    { value: "", label: "Ofis Seçin (Opsiyonel)" },
+    { value: "Merkez", label: "Merkez" },
+    { value: "Ünalan", label: "Ünalan" },
+    { value: "Bahçelievler", label: "Bahçelievler" },
+    { value: "Yavuztürk", label: "Yavuztürk" },
+];
+
 export default function CreateLinkForm() {
     const [isPending, startTransition] = useTransition();
     const [createdLink, setCreatedLink] = useState<string | null>(null);
@@ -13,9 +21,10 @@ export default function CreateLinkForm() {
     const handleSubmit = async (formData: FormData) => {
         const targetName = formData.get("targetName") as string;
         const phoneNumber = sendSms ? (formData.get("phoneNumber") as string) : undefined;
+        const office = formData.get("office") as string || undefined;
 
         startTransition(async () => {
-            const result = await createFeedbackLink(targetName, phoneNumber);
+            const result = await createFeedbackLink(targetName, phoneNumber, office);
             if (result.error) {
                 setError(result.error);
                 setCreatedLink(null);
@@ -51,6 +60,21 @@ export default function CreateLinkForm() {
                             required
                             className="w-full px-3 py-2 border rounded-md border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
+                    </div>
+                    <div className="md:w-48">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Ofis
+                        </label>
+                        <select
+                            name="office"
+                            className="w-full px-3 py-2 border rounded-md border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                        >
+                            {OFFICES.map((office) => (
+                                <option key={office.value} value={office.value}>
+                                    {office.label}
+                                </option>
+                            ))}
+                        </select>
                     </div>
                     <button
                         type="submit"

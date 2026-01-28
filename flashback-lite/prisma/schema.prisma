@@ -13,6 +13,7 @@ datasource db {
 model Feedback {
   id         String   @id // UUID
   targetName String   // Who is the feedback for?
+  office     String?  // Merkez, Ünalan, Bahçelievler, Yavuztürk
   rating     Int?     // 1-5 range, nullable initially
   comment    String?  // Optional comment
   isUsed     Boolean  @default(false)
