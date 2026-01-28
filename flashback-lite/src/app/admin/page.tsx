@@ -1,30 +1,17 @@
-import { getFeedbackStats, getRecentFeedback } from "@/app/actions/admin";
+import { getRecentFeedback } from "@/app/actions/admin";
 import CreateLinkForm from "@/components/admin/CreateLinkForm";
 import BulkUpload from "@/components/admin/BulkUpload";
+import StatsDashboard from "@/components/admin/StatsDashboard";
 import FeedbackRow from "@/components/admin/FeedbackRow";
 import FeedbackCard from "@/components/admin/FeedbackCard";
 
 export default async function AdminDashboard() {
-    const stats = await getFeedbackStats();
     const recentFeedback = await getRecentFeedback();
 
     return (
         <div className="space-y-6 md:space-y-8 max-w-6xl mx-auto px-4 md:px-0">
-            {/* Stats Section */}
-            <div className="grid grid-cols-3 gap-3 md:gap-6">
-                <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border border-gray-200">
-                    <h3 className="text-gray-500 text-xs md:text-sm font-medium uppercase tracking-wider">Toplam</h3>
-                    <p className="text-2xl md:text-3xl font-bold text-gray-900 mt-1 md:mt-2">{stats.total}</p>
-                </div>
-                <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border border-gray-200">
-                    <h3 className="text-gray-500 text-xs md:text-sm font-medium uppercase tracking-wider">Tamamlanan</h3>
-                    <p className="text-2xl md:text-3xl font-bold text-gray-900 mt-1 md:mt-2">{stats.used}</p>
-                </div>
-                <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border border-gray-200">
-                    <h3 className="text-gray-500 text-xs md:text-sm font-medium uppercase tracking-wider">Ort. Puan</h3>
-                    <p className="text-2xl md:text-3xl font-bold text-blue-600 mt-1 md:mt-2">{stats.averageRating}</p>
-                </div>
-            </div>
+            {/* Advanced Stats Dashboard */}
+            <StatsDashboard />
 
             {/* Create Link Section */}
             <CreateLinkForm />

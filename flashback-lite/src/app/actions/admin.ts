@@ -26,6 +26,119 @@ export async function getFeedbackStats() {
     };
 }
 
+export async function getOfficeList() {
+    const offices = await prisma.feedback.findMany({
+        where: { office: { not: null } },
+        select: { office: true },
+        distinct: ['office'],
+    });
+    return offices.map(o => o.office).filter(Boolean) as string[];
+}
+
+export interface AdvancedStats {
+    total: number;
+    used: number;
+    averageRating: number;
+    positiveCount: number;
+    negativeCount: number;
+    neutralCount: number;
+    officeStats: { office: string; count: number; avgRating: number; positiveCount: number }[];
+    timeSeriesData: { date: string; count: number; avgRating: number; positiveCount: number; negativeCount: number }[];
+}
+
+export async function getAdvancedStats(
+    startDate?: string,
+    endDate?: string,
+    office?: string
+): Promise<AdvancedStats> {
+    const whereClause: Record<string, unknown> = { isUsed: true };
+    
+    if (startDate && endDate) {
+        whereClause.createdAt = {
+            gte: new Date(startDate),
+            lte: new Date(endDate + "T23:59:59.999Z"),
+        };
+    }
+    
+    if (office && office !== "all") {
+        whereClause.office = office;
+    }
+
+    // Get all feedback matching criteria
+    const feedback = await prisma.feedback.findMany({
+        where: whereClause,
+        select: {
+            id: true,
+            rating: true,
+            office: true,
+            createdAt: true,
+        },
+        orderBy: { createdAt: "asc" },
+    });
+
+    const total = feedback.length;
+    const withRating = feedback.filter(f => f.rating !== null);
+    const used = withRating.length;
+    
+    const averageRating = used > 0
+        ? withRating.reduce((acc, curr) => acc + (curr.rating || 0), 0) / used
+        : 0;
+
+    // Positive (4-5), Neutral (3), Negative (1-2)
+    const positiveCount = withRating.filter(f => (f.rating || 0) >= 4).length;
+    const neutralCount = withRating.filter(f => f.rating === 3).length;
+    const negativeCount = withRating.filter(f => (f.rating || 0) <= 2).length;
+
+    // Office stats
+    const officeMap = new Map<string, { count: number; totalRating: number; positiveCount: number }>();
+    withRating.forEach(f => {
+        const off = f.office || "Belirtilmemiş";
+        const current = officeMap.get(off) || { count: 0, totalRating: 0, positiveCount: 0 };
+        current.count++;
+        current.totalRating += f.rating || 0;
+        if ((f.rating || 0) >= 4) current.positiveCount++;
+        officeMap.set(off, current);
+    });
+
+    const officeStats = Array.from(officeMap.entries()).map(([office, data]) => ({
+        office,
+        count: data.count,
+        avgRating: data.count > 0 ? data.totalRating / data.count : 0,
+        positiveCount: data.positiveCount,
+    })).sort((a, b) => b.count - a.count);
+
+    // Time series - group by day
+    const dateMap = new Map<string, { count: number; totalRating: number; positiveCount: number; negativeCount: number }>();
+    withRating.forEach(f => {
+        const dateStr = f.createdAt.toISOString().split("T")[0];
+        const current = dateMap.get(dateStr) || { count: 0, totalRating: 0, positiveCount: 0, negativeCount: 0 };
+        current.count++;
+        current.totalRating += f.rating || 0;
+        if ((f.rating || 0) >= 4) current.positiveCount++;
+        if ((f.rating || 0) <= 2) current.negativeCount++;
+        dateMap.set(dateStr, current);
+    });
+
+    const timeSeriesData = Array.from(dateMap.entries()).map(([date, data]) => ({
+        date,
+        count: data.count,
+        avgRating: data.count > 0 ? data.totalRating / data.count : 0,
+        positiveCount: data.positiveCount,
+        negativeCount: data.negativeCount,
+    })).sort((a, b) => a.date.localeCompare(b.date));
+
+    return {
+        total,
+        used,
+        averageRating,
+        positiveCount,
+        negativeCount,
+        neutralCount,
+        officeStats,
+        timeSeriesData,
+    };
+}
+
 export async function getRecentFeedback() {
     const feedback = await prisma.feedback.findMany({
         orderBy: { createdAt: "desc" },
