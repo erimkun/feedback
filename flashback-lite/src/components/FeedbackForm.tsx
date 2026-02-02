@@ -127,9 +127,6 @@ export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormPro
         .rating-item.selected p {
           font-weight: 700;
         }
-        .rating-item[data-value="1"]:hover .ph-fill {
-          color: #E42617 !important;
-        }
         textarea:focus {
           outline: none;
           border-color: #E42617;
