@@ -201,8 +201,8 @@ export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormPro
                           style={{
                             filter: selectedRating === value 
                               ? "invert(42%) sepia(93%) saturate(1352%) hue-rotate(87deg) brightness(95%) contrast(101%)" 
-                              : "grayscale(100%)",
-                            opacity: selectedRating === value ? 1 : 0.5,
+                              : "invert(69%) sepia(11%) saturate(233%) hue-rotate(179deg) brightness(93%) contrast(88%)",
+                            opacity: 1,
                           }}
                         />
                       ) : (
