@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
+import 'dotenv/config';
 
 const prisma = new PrismaClient();
 
@@ -20,10 +21,13 @@ async function main() {
     },
   });
 
+  const baseUrlRaw = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+  const baseUrl = baseUrlRaw.replace(/\/$/, "");
+
   console.log("\n✅ Yeni feedback linki oluşturuldu!\n");
   console.log(`   Hedef: ${targetName}`);
   console.log(`   ID: ${id}`);
-  console.log(`\n🔗 URL: http://localhost:3000/feedback/${id}\n`);
+  console.log(`\n🔗 URL: ${baseUrl}/anket/${id}\n`);
 }
 
 main()

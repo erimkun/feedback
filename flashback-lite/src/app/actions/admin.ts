@@ -347,7 +347,8 @@ export async function createFeedbackLink(targetName: string, phoneNumber?: strin
             },
         });
 
-        const link = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/feedback/${id}`;
+        const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000').replace(/\/$/, "");
+        const link = `${baseUrl}/anket/${id}`;
 
         // Send SMS if phone number is provided
         let smsResult = null;
@@ -404,7 +405,8 @@ export async function sendSMSToFeedback(feedbackId: string, phoneNumber: string)
             return { success: false, error: "Geri bildirim bulunamadı" };
         }
 
-        const link = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/feedback/${feedbackId}`;
+        const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000').replace(/\/$/, "");
+        const link = `${baseUrl}/anket/${feedbackId}`;
         const smsResult = await sendSMS(phoneNumber, link, feedback.targetName, feedback.office ?? undefined);
 
         return {
@@ -465,7 +467,8 @@ export async function createBulkFeedbackLinks(contacts: BulkContactItem[]): Prom
                     office: contact.office || null,
                 },
             });
-
+baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000').replace(/\/$/, "");
+            const link = `${baseUrl}/anket
             const link = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/feedback/${id}`;
             const smsResult = await sendSMS(contact.phone, link, contact.name, contact.office);
 
