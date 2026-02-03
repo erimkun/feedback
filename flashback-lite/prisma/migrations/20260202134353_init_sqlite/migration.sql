@@ -2,6 +2,8 @@
 CREATE TABLE "Feedback" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "targetName" TEXT NOT NULL,
+    "phone" TEXT,
+    "office" TEXT,
     "rating" INTEGER,
     "comment" TEXT,
     "isUsed" BOOLEAN NOT NULL DEFAULT false,

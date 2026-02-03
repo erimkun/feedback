@@ -343,6 +343,7 @@ export async function createFeedbackLink(targetName: string, phoneNumber?: strin
             data: {
                 id,
                 targetName,
+                phone: phoneNumber || null,
                 office: office || null,
             },
         });
@@ -464,6 +465,7 @@ export async function createBulkFeedbackLinks(contacts: BulkContactItem[]): Prom
                 data: {
                     id,
                     targetName: contact.name,
+                    phone: contact.phone || null,
                     office: contact.office || null,
                 },
             });

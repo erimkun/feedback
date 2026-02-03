@@ -5,19 +5,25 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// SQLite (Local)
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
+
+// PostgreSQL (Neon) - Uncomment below and comment SQLite to use PostgreSQL
+// datasource db {
+//   provider = "postgresql"
+//   url      = env("DATABASE_URL")
+// }
 
 model Feedback {
   id         String   @id // UUID
   targetName String   // Who is the feedback for?
+  phone      String?  // Phone number
   office     String?  // Merkez, Ünalan, Bahçelievler, Yavuztürk
   rating     Int?     // 1-5 range, nullable initially
   comment    String?  // Optional comment
   isUsed     Boolean  @default(false)
   createdAt  DateTime @default(now())
-
-  @@map("kentas.anket")
 }
