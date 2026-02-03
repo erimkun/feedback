@@ -460,7 +460,7 @@ export async function createBulkFeedbackLinks(contacts: BulkContactItem[]): Prom
         }
 
         try {
-            const id = nanoid(10);
+            const id = uuidv4();
             await prisma.feedback.create({
                 data: {
                     id,
