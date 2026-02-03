@@ -8,6 +8,7 @@ interface FeedbackRowProps {
     item: {
         id: string;
         targetName: string;
+        phone?: string | null;
         rating: number | null;
         comment: string | null;
         createdAt: string;
@@ -20,6 +21,18 @@ export default function FeedbackRow({ item }: FeedbackRowProps) {
     const [showSmsModal, setShowSmsModal] = useState(false);
     const [phoneNumber, setPhoneNumber] = useState("");
     const [smsStatus, setSmsStatus] = useState<{ type: 'idle' | 'loading' | 'success' | 'error', message?: string }>({ type: 'idle' });
+    const [repeatSmsStatus, setRepeatSmsStatus] = useState<{ type: 'idle' | 'loading' | 'success' | 'error', message?: string }>({ type: 'idle' });
+    const handleRepeatSms = async () => {
+        if (!item.phone) return;
+        setRepeatSmsStatus({ type: 'loading' });
+        const result = await sendSMSToFeedback(item.id, item.phone);
+        if (result.success) {
+            setRepeatSmsStatus({ type: 'success', message: 'SMS tekrar gönderildi!' });
+            setTimeout(() => setRepeatSmsStatus({ type: 'idle' }), 1500);
+        } else {
+            setRepeatSmsStatus({ type: 'error', message: result.error || 'SMS gönderilemedi' });
+        }
+    };
 
     useEffect(() => {
         setFormattedDate(format(new Date(item.createdAt), "dd MMM yyyy HH:mm"));
@@ -100,6 +113,16 @@ export default function FeedbackRow({ item }: FeedbackRowProps) {
                             <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
                         </svg>
                     </button>
+                    {item.phone && (
+                        <button
+                            onClick={handleRepeatSms}
+                            className="text-green-600 hover:text-green-900 transition text-sm font-medium border border-green-200 rounded px-2 py-1"
+                            disabled={repeatSmsStatus.type === 'loading'}
+                            title="Tekrar SMS Gönder"
+                        >
+                            {repeatSmsStatus.type === 'loading' ? 'Tekrar Gönderiliyor...' : 'Tekrar SMS Gönder'}
+                        </button>
+                    )}
                     <button
                         onClick={handleDelete}
                         disabled={isPending}
@@ -108,6 +131,12 @@ export default function FeedbackRow({ item }: FeedbackRowProps) {
                         {isPending ? "Siliniyor..." : "Sil"}
                     </button>
                 </div>
+                {repeatSmsStatus.type === 'error' && (
+                    <div className="text-xs text-red-600 mt-1">{repeatSmsStatus.message}</div>
+                )}
+                {repeatSmsStatus.type === 'success' && (
+                    <div className="text-xs text-green-600 mt-1">{repeatSmsStatus.message}</div>
+                )}
             </td>
         </tr>
 

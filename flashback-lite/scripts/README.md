@@ -33,9 +33,9 @@ npx tsx scripts/create-link.ts "Ahmet Yılmaz"
 ✅ Yeni feedback linki oluşturuldu!
 
    Hedef: Ahmet Yılmaz
-   ID: 550e8400-e29b-41d4-a716-446655440000
+  ID: b9f8K3pQ2
 
-🔗 URL: http://localhost:3000/feedback/550e8400-e29b-41d4-a716-446655440000
+🔗 URL: http://localhost:3000/feedback/b9f8K3pQ2
 ```
 
 ### Çalışma Prensibi
@@ -44,8 +44,8 @@ npx tsx scripts/create-link.ts "Ahmet Yılmaz"
 // 1. Komut satırı argümanını al
 const targetName = process.argv[2];
 
-// 2. UUID oluştur
-const id = uuidv4();
+// 2. Kısa ID oluştur (nanoid veya merkezi helper)
+const id = generateId();
 
 // 3. Veritabanına kaydet
 await prisma.feedback.create({
@@ -92,7 +92,7 @@ console.log(`🔗 URL: http://localhost:3000/feedback/${id}`);
 | Paket | Kullanım |
 |-------|----------|
 | @prisma/client | Veritabanı işlemleri |
-| uuid | UUID v4 üretimi |
+| uuid | (eski) UUID v4 üretimi — proje artık kısa id'ler (nanoid) kullanıyor |
 | tsx | TypeScript çalıştırma |
 
 ---

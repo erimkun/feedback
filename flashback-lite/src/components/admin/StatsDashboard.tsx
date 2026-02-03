@@ -18,7 +18,7 @@ import {
     Pie,
     Cell,
 } from "recharts";
-import { getAdvancedStats, getOfficeList, AdvancedStats } from "@/app/actions/admin";
+import { getAdvancedStats, getOfficeList, getOfficeComparison, AdvancedStats } from "@/app/actions/admin";
 import NpsGauge from "./NpsGauge";
 import ComparisonChart from "./ComparisonChart";
 import TargetProgress from "./TargetProgress";
@@ -46,6 +46,10 @@ export default function StatsDashboard() {
     const [customStart, setCustomStart] = useState("");
     const [customEnd, setCustomEnd] = useState("");
     const [showNegativeTickets, setShowNegativeTickets] = useState(false);
+    const [officeCompareA, setOfficeCompareA] = useState<string>("");
+    const [officeCompareB, setOfficeCompareB] = useState<string>("");
+    const [officeComparisonResult, setOfficeComparisonResult] = useState<any | null>(null);
+    const [officeCompareLoading, setOfficeCompareLoading] = useState(false);
 
     const getDateRange = (range: TimeRange): { start: string; end: string } => {
         const today = new Date();
@@ -92,6 +96,21 @@ export default function StatsDashboard() {
     useEffect(() => {
         loadData();
     }, [timeRange, selectedOffice]);
+
+    const handleOfficeCompare = async () => {
+        if (!officeCompareA || !officeCompareB) return;
+        setOfficeCompareLoading(true);
+        setOfficeComparisonResult(null);
+            try {
+            const { start, end } = getDateRange(timeRange);
+            const res = await getOfficeComparison(start, end, officeCompareA, officeCompareB);
+            setOfficeComparisonResult(res);
+        } catch (error) {
+            console.error("Office compare failed:", error);
+        } finally {
+            setOfficeCompareLoading(false);
+        }
+    };
 
     const pieData = stats
         ? [
@@ -414,6 +433,73 @@ export default function StatsDashboard() {
 
             {/* Comparison Chart */}
             <ComparisonChart />
+
+            {/* Office Comparison */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                <h3 className="text-lg font-semibold text-gray-800 mb-3">Ofis Karşılaştırması</h3>
+                <div className="flex flex-wrap gap-3 items-end">
+                    <div>
+                        <label className="block text-xs font-medium text-gray-500 mb-1">Ofis A</label>
+                        <select
+                            value={officeCompareA}
+                            onChange={(e) => setOfficeCompareA(e.target.value)}
+                            className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        >
+                            <option value="">Seçiniz</option>
+                            {offices.map((office) => (
+                                <option key={office} value={office}>{office}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-xs font-medium text-gray-500 mb-1">Ofis B</label>
+                        <select
+                            value={officeCompareB}
+                            onChange={(e) => setOfficeCompareB(e.target.value)}
+                            className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        >
+                            <option value="">Seçiniz</option>
+                            {offices.map((office) => (
+                                <option key={office} value={office}>{office}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <button
+                            onClick={handleOfficeCompare}
+                            disabled={loading || !officeCompareB}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm disabled:opacity-50"
+                        >
+                            Karşılaştır
+                        </button>
+                    </div>
+                </div>
+
+                {officeCompareLoading ? (
+                    <div className="mt-4 text-sm text-gray-600">Yükleniyor...</div>
+                ) : officeComparisonResult ? (
+                    <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="p-3 border rounded-lg">
+                            <div className="text-xs text-gray-500">{officeComparisonResult.officeA.office}</div>
+                            <div className="text-xl font-bold mt-1">Ort. Puan: {officeComparisonResult.officeA.stats.averageRating.toFixed(1)}</div>
+                            <div className="text-sm text-gray-600">NPS: {officeComparisonResult.officeA.stats.npsScore}</div>
+                            <div className="text-sm text-gray-600">Tamamlanan: {officeComparisonResult.officeA.stats.used}</div>
+                        </div>
+                        <div className="p-3 border rounded-lg">
+                            <div className="text-xs text-gray-500">{officeComparisonResult.officeB.office}</div>
+                            <div className="text-xl font-bold mt-1">Ort. Puan: {officeComparisonResult.officeB.stats.averageRating.toFixed(1)}</div>
+                            <div className="text-sm text-gray-600">NPS: {officeComparisonResult.officeB.stats.npsScore}</div>
+                            <div className="text-sm text-gray-600">Tamamlanan: {officeComparisonResult.officeB.stats.used}</div>
+                        </div>
+                        <div className="p-3 border rounded-lg">
+                            <div className="text-xs text-gray-500">Farklar (A - B)</div>
+                            <div className="text-xl font-bold mt-1">Ort. Puan: {officeComparisonResult.comparison.avgRatingDiff.toFixed(2)}</div>
+                            <div className="text-sm text-gray-600">NPS: {officeComparisonResult.comparison.npsDiff}</div>
+                            <div className="text-sm text-gray-600">Tamamlanan Farkı: {officeComparisonResult.comparison.volumeDiff}</div>
+                        </div>
+                    </div>
+                ) : null}
+            </div>
         </div>
     );
 }

@@ -2,7 +2,8 @@
 
 import { prisma } from "@/lib/prisma";
 import { sendSMS, isValidPhoneNumber } from "@/lib/sms";
-import { v4 as uuidv4 } from "uuid";
+import generateId from "@/lib/id";
+import { Prisma } from '@prisma/client';
 import { revalidatePath } from "next/cache";
 
 export async function getFeedbackStats() {
@@ -241,6 +242,31 @@ export async function getComparisonStats(
     };
 }
 
+// Compare two offices for the same period
+export async function getOfficeComparison(
+    start: string,
+    end: string,
+    officeA: string,
+    officeB: string
+) {
+    const statsA = await getAdvancedStats(start, end, officeA);
+    const statsB = await getAdvancedStats(start, end, officeB);
+
+    const positiveRateA = statsA.used > 0 ? (statsA.positiveCount / statsA.used) * 100 : 0;
+    const positiveRateB = statsB.used > 0 ? (statsB.positiveCount / statsB.used) * 100 : 0;
+
+    return {
+        officeA: { office: officeA, stats: statsA },
+        officeB: { office: officeB, stats: statsB },
+        comparison: {
+            avgRatingDiff: statsA.averageRating - statsB.averageRating,
+            npsDiff: statsA.npsScore - statsB.npsScore,
+            positiveRateDiff: positiveRateA - positiveRateB,
+            volumeDiff: statsA.used - statsB.used,
+        },
+    };
+}
+
 // Get monthly targets and progress
 export interface MonthlyTarget {
     month: string;
@@ -338,15 +364,37 @@ export async function createFeedbackLink(targetName: string, phoneNumber?: strin
     }
 
     try {
-        const id = uuidv4();
-        await prisma.feedback.create({
-            data: {
-                id,
-                targetName,
-                phone: phoneNumber || null,
-                office: office || null,
-            },
-        });
+        const minLen = parseInt(process.env.NANOID_MIN_LENGTH || "", 10) || 6;
+        const tryLens = [minLen, minLen + 1, minLen + 2];
+        let id: string | null = null;
+        let created = false;
+
+        for (const len of tryLens) {
+            const candidate = generateId(len);
+            try {
+                await prisma.feedback.create({
+                    data: {
+                        id: candidate,
+                        targetName,
+                        phone: phoneNumber || null,
+                        office: office || null,
+                    },
+                });
+                id = candidate;
+                created = true;
+                break;
+            } catch (error) {
+                if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+                    // unique constraint violation - try next length
+                    continue;
+                }
+                throw error;
+            }
+        }
+
+        if (!created || !id) {
+            return { error: "Kısa ID oluşturulamadı, lütfen tekrar deneyin" };
+        }
 
         const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000').replace(/\/$/, "");
         const link = `${baseUrl}/anket/${id}`;
@@ -460,46 +508,59 @@ export async function createBulkFeedbackLinks(contacts: BulkContactItem[]): Prom
         }
 
         try {
-            const id = uuidv4();
-            await prisma.feedback.create({
-                data: {
-                    id,
-                    targetName: contact.name,
-                    phone: contact.phone || null,
-                    office: contact.office || null,
-                },
-            });
-            
-            const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000').replace(/\/$/, "");
-            const link = `${baseUrl}/feedback/${id}`;
-            const smsResult = await sendSMS(contact.phone, link, contact.name, contact.office);
+            const minLen = parseInt(process.env.NANOID_MIN_LENGTH || "", 10) || 6;
+            const tryLens = [minLen, minLen + 1, minLen + 2];
+            let createdId: string | null = null;
+            let created = false;
 
-            if (smsResult.success) {
-                results.push({
-                    id: contact.id,
-                    name: contact.name,
-                    success: true,
-                    link,
-                });
-                totalSuccess++;
-            } else {
+            for (const len of tryLens) {
+                const candidate = generateId(len);
+                try {
+                    await prisma.feedback.create({
+                        data: {
+                            id: candidate,
+                            targetName: contact.name,
+                            phone: contact.phone || null,
+                            office: contact.office || null,
+                        },
+                    });
+                    createdId = candidate;
+                    created = true;
+                    break;
+                } catch (error) {
+                    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+                        // collision, try next length
+                        continue;
+                    }
+                    throw error;
+                }
+            }
+
+            if (!created || !createdId) {
                 results.push({
                     id: contact.id,
                     name: contact.name,
                     success: false,
-                    error: smsResult.error || "SMS gönderilemedi",
-                    link,
+                    error: "Kısa ID oluşturulamadı",
                 });
+                totalFailed++;
+                continue;
+            }
+
+            const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000').replace(/\/$/, "");
+            const link = `${baseUrl}/feedback/${createdId}`;
+            const smsResult = await sendSMS(contact.phone, link, contact.name, contact.office);
+
+            if (smsResult.success) {
+                results.push({ id: contact.id, name: contact.name, success: true, link });
+                totalSuccess++;
+            } else {
+                results.push({ id: contact.id, name: contact.name, success: false, error: smsResult.error || "SMS gönderilemedi", link });
                 totalFailed++;
             }
         } catch (error) {
             console.error("Bulk create error for", contact.name, error);
-            results.push({
-                id: contact.id,
-                name: contact.name,
-                success: false,
-                error: "Link oluşturulurken hata oluştu",
-            });
+            results.push({ id: contact.id, name: contact.name, success: false, error: "Link oluşturulurken hata oluştu" });
             totalFailed++;
         }
     }
