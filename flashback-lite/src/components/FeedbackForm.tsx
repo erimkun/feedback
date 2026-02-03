@@ -164,7 +164,7 @@ export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormPro
               {/* Question */}
               <div className="text-center">
                 <h3 className="text-gray-900 text-base font-extrabold leading-relaxed">
-                  Bugünkü Kentsel Dönüşüm planlama süreci deneyiminizi nasıl değerlendirirsiniz?
+                  Kentsel Dönüşüm planlama süreci deneyiminizi nasıl değerlendirirsiniz?
                 </h3>
                 <p className="text-gray-500 text-xs mt-2">
                   Görüşleriniz mahallemizin geleceğini şekillendiriyor.

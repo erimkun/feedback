@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { sendSMS, isValidPhoneNumber } from "@/lib/sms";
-import { nanoid } from "nanoid";
+import { v4 as uuidv4 } from "uuid";
 import { revalidatePath } from "next/cache";
 
 export async function getFeedbackStats() {
@@ -338,7 +338,7 @@ export async function createFeedbackLink(targetName: string, phoneNumber?: strin
     }
 
     try {
-        const id = nanoid(10);
+        const id = uuidv4();
         await prisma.feedback.create({
             data: {
                 id,
@@ -366,7 +366,7 @@ export async function createFeedbackLink(targetName: string, phoneNumber?: strin
         };
     } catch (error) {
         console.error("Link creation error:", error);
-        return { error: "Link oluşturulurken bir hata oluştu" };
+        return { error: `Link oluşturulurken bir hata oluştu: ${(error as Error).message}` };
     }
 }
 
