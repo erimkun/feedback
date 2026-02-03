@@ -73,21 +73,90 @@ Artık uygulamanız `http://localhost:3000` adresinde çalışıyor olacaktır.
 
 ---
 
-## 3. Uygulamayı Sürekli Ayakta Tutma (PM2 Kullanımı)
+## 3. Uygulamayı Sürekli Ayakta Tutma (Production — systemd önerilir)
 
-Terminali kapattığınızda uygulamanın kapanmaması için PM2 kullanmanız önerilir.
+Üretim ortamında uygulamayı "build" edip `npm run start` ile çalıştırmak ve `systemd` ile servis olarak yönetmek genellikle PM2'ye göre daha basit ve kararlıdır. Aşağıda hem servis örneği hem de Prisma ile veritabanı hazırlama adımları yer alır.
+
+Önce uygulamayı build edin:
 
 ```bash
-# PM2'yi global olarak yükleyin
-npm install -g pm2
-
-# Uygulamayı başlatın
-pm2 start npm --name "feedback-app" -- start
-
-# Başlangıçta otomatik açılması için kaydetme
-pm2 startup
-pm2 save
+npm run build
 ```
+
+Prisma istemcisini oluşturun ve veritabanı şemasını uygulayın:
+
+```bash
+npx prisma generate
+
+# Eğer migration tabanlı bir iş akışınız varsa (migrations/ dizini varsa):
+npx prisma migrate deploy
+
+# Eğer migration kullanmıyorsanız ve sadece şemayı DB'ye push etmek isterseniz:
+npx prisma db push
+```
+
+Üretimde uygulamayı başlatın:
+
+```bash
+npm run start
+```
+
+Örnek `systemd` servis dosyası (`/etc/systemd/system/feedback-app.service`):
+
+```ini
+[Unit]
+Description=Feedback App (Next.js)
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/path/to/flashback-lite
+ExecStart=/usr/bin/npm run start
+Restart=on-failure
+Environment=NODE_ENV=production
+Environment=DATABASE_URL=postgresql://user:pass@host:5432/dbname?schema=public
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Servisi etkinleştirme ve başlatma:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now feedback-app
+```
+
+Not: `systemd` yerine `pm2` kullanmak isterseniz PM2 komutlarını kullanabilirsiniz; PM2 hâlâ bir seçenektir.
+
+### Ek: Localde `dev.db` silindiğinde ne yapmalı?
+
+Eğer local `dev.db` dosyasını sildiyseniz (veriler gidicektir), proje kök dizininde veritabanı şemasını yeniden oluşturmak için:
+
+```bash
+cd flashback-lite
+
+# migration'lar varsa reset ile temiz DB oluşturup migration'ları uygulayabilirsiniz (veri kaybı olur):
+npx prisma migrate reset --force
+
+# veya sadece şemayı DB'ye push etmek isterseniz:
+npx prisma db push
+
+npx prisma generate
+
+npm run dev
+```
+
+### Ek: Mevcut bir uzak veritabanına bağlanma
+
+1. Sunucunuzdaki `.env` dosyasında `DATABASE_URL`'i uzak PostgreSQL URL'sine ayarlayın.
+2. Eğer migration'larınız varsa sunucuda `npx prisma migrate deploy` çalıştırarak tabloların oluşturulmasını sağlayın. Migration kullanmıyorsanız `npx prisma db push` ile şemayı itebilirsiniz.
+
+Uyarılar:
+- Eğer hedef veritabanı üzerinde zaten veri veya farklı bir şema varsa, migration'lar çakışabilir — önce test bir veritabanında deneyin.
+- Production için `migrate deploy` tercih edilir; `migrate reset` üretimde asla kullanılmamalıdır.
+
 
 ## 4. Domain ve Port Yönlendirme (Nginx - Opsiyonel)
 

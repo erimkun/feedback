@@ -26,4 +26,5 @@ model Feedback {
   comment    String?  // Optional comment
   isUsed     Boolean  @default(false)
   createdAt  DateTime @default(now())
+  @@map("kentas_anket")
 }

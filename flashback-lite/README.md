@@ -176,7 +176,10 @@ NEXT_PUBLIC_BASE_URL="http://localhost:3000"
 ```
 
 ---
-
+npx prisma migrate deploy
+npx prisma generate
+npm run build
+npm run start
 ## 📄 Lisans
 
 © 2026 Üsküdar Yenileniyor - Tüm hakları saklıdır.
