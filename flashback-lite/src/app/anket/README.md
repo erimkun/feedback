@@ -47,12 +47,12 @@ if (!feedback) {
   notFound();  // 404 sayfasına yönlendir
 }
 
-if (feedback.isUsed) {
+if (feedback.is_used) {
   // "Link kullanılmış" mesajı göster
 }
 
 // Form göster
-return <FeedbackForm feedbackId={id} targetName={feedback.targetName} />;
+return <FeedbackForm feedbackId={id} target_name={feedback.target_name} />;
 ```
 
 ### Render Durumları
@@ -60,8 +60,8 @@ return <FeedbackForm feedbackId={id} targetName={feedback.targetName} />;
 | Durum | Sonuç |
 |-------|-------|
 | ID bulunamadı | `not-found.tsx` render edilir |
-| `isUsed: true` | Bilgilendirme mesajı |
-| `isUsed: false` | FeedbackForm bileşeni |
+| `is_used: true` | Bilgilendirme mesajı |
+| `is_used: false` | FeedbackForm bileşeni |
 
 ---
 
@@ -93,7 +93,7 @@ Kullanıcı formu doldurur
          ↓
 submitFeedback() Server Action
          ↓
-isUsed: true olarak güncelle
+is_used: true olarak güncelle
          ↓
 Teşekkür ekranı + Konfeti
 ```

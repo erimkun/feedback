@@ -28,7 +28,7 @@ Kullanıcı geri bildirim formu.
 ```typescript
 interface FeedbackFormProps {
   feedbackId: string;
-  targetName: string;
+  target_name: string;
 }
 ```
 

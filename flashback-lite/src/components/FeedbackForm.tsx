@@ -6,7 +6,7 @@ import Script from "next/script";
 
 interface FeedbackFormProps {
   feedbackId: string;
-  targetName: string;
+  target_name: string;
 }
 
 // Rating renkleri (1: kırmızı -> 5: yeşil)
@@ -27,7 +27,7 @@ const ratingIcons = [
   { value: 5, icon: "/smiley-in-love-svgrepo-com.svg", isSvg: true },
 ];
 
-export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormProps) {
+export default function FeedbackForm({ feedbackId, target_name }: FeedbackFormProps) {
   const [selectedRating, setSelectedRating] = useState<number | null>(null);
   const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -155,7 +155,7 @@ export default function FeedbackForm({ feedbackId, targetName }: FeedbackFormPro
                 <img src="/logo.png" alt="Logo" className="h-24 object-contain" />
               </div>
               <h1 className="text-xl font-extrabold text-gray-900">
-                Merhaba <span className="text-black">{targetName}</span>
+                Merhaba <span className="text-black">{target_name}</span>
               </h1>
             </div>
 

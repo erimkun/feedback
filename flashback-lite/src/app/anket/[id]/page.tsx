@@ -20,7 +20,7 @@ export default async function FeedbackPage({ params }: FeedbackPageProps) {
   }
 
   // If already used, show info message
-  if (feedback.isUsed) {
+  if (feedback.is_used) {
     return (
       <>
         <Script src="https://unpkg.com/@phosphor-icons/web" strategy="beforeInteractive" />
@@ -50,5 +50,5 @@ export default async function FeedbackPage({ params }: FeedbackPageProps) {
   }
 
   // Valid feedback - render the form
-  return <FeedbackForm feedbackId={feedback.id} targetName={feedback.targetName} />;
+  return <FeedbackForm feedbackId={feedback.id} target_name={feedback.target_name} />;
 }

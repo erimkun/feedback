@@ -46,11 +46,11 @@ Kod snippet'i
 
 model Feedback {
   id          String   @id // Linkteki benzersiz kod (UUID)
-  targetName  String   // Geri bildirim kimden isteniyor? (Örn: "Ahmet Bey")
+  target_name  String   // Geri bildirim kimden isteniyor? (Örn: "Ahmet Bey")
   rating      Int?     // 1-5 arası puan (Başlangıçta boş)
   comment     String?  // Opsiyonel yorum
-  isUsed      Boolean  @default(false) // Link kullanıldı mı?
-  createdAt   DateTime @default(now())
+  is_used      Boolean  @default(false) // Link kullanıldı mı?
+  created_at   DateTime @default(now())
 }
 3. Uygulama Mantığı ve Kurallar
 A. Arayüz (Frontend) Mantığı
@@ -81,9 +81,9 @@ Sistem şu kontrolleri yapar:
 
 Bu ID var mı?
 
-Daha önce kullanılmış mı (isUsed true mu)?
+Daha önce kullanılmış mı (is_used true mu)?
 
-Sorun yoksa veriyi günceller ve isUsed = true yapar.
+Sorun yoksa veriyi günceller ve is_used = true yapar.
 
 4. Kurulum ve Çalıştırma (Deployment)
 SQLite dosya tabanlı olduğu için "Serverless" (Vercel vb.) ortamlarda veri kalıcı olmaz (her dağıtımda sıfırlanabilir). Bu yüzden bu "simple" yapıyı şu şekilde çalıştırabilirsin:

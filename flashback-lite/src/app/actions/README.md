@@ -105,14 +105,14 @@ Son 50 feedback'i döner.
 // Dönen değer
 Array<{
   id: string;
-  targetName: string;
+  target_name: string;
   rating: number | null;
   comment: string | null;
-  createdAt: string;
+  created_at: string;
 }>
 ```
 
-#### `createFeedbackLink(targetName, phoneNumber?, office?)`
+#### `createFeedbackLink(target_name, phoneNumber?, office?)`
 Yeni feedback linki oluşturur.
 
 ```typescript

@@ -7,12 +7,12 @@ import { getNegativeFeedbacks, getOfficeList } from "@/app/actions/admin";
 
 interface NegativeFeedback {
     id: string;
-    targetName: string;
+    target_name: string;
     phone: string | null;
     rating: number | null;
     comment: string | null;
     office: string | null;
-    createdAt: string;
+    created_at: string;
 }
 
 interface NegativeTicketsProps {
@@ -128,14 +128,14 @@ export default function NegativeTickets({ onClose }: NegativeTicketsProps) {
                                 <div className="flex items-center gap-3">
                                     <div className="text-3xl">{getRatingEmoji(fb.rating)}</div>
                                     <div>
-                                        <div className="font-semibold text-gray-900">{fb.targetName}</div>
+                                        <div className="font-semibold text-gray-900">{fb.target_name}</div>
                                         {fb.phone && (
                                             <div className="text-sm text-gray-600 font-mono mb-0.5">{fb.phone}</div>
                                         )}
                                         <div className="flex items-center gap-2 text-sm text-gray-500">
                                             <span>{fb.office || "Ofis belirtilmemiş"}</span>
                                             <span>•</span>
-                                            <span>{format(new Date(fb.createdAt), "dd MMM yyyy HH:mm", { locale: tr })}</span>
+                                            <span>{format(new Date(fb.created_at), "dd MMM yyyy HH:mm", { locale: tr })}</span>
                                         </div>
                                     </div>
                                 </div>

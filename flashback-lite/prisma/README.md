@@ -43,12 +43,12 @@ datasource db {
 ```prisma
 model Feedback {
   id         String   @id           // UUID - benzersiz link ID
-  targetName String                 // Hedef kişi adı
+  target_name String                 // Hedef kişi adı
   office     String?                // Ofis (opsiyonel)
   rating     Int?                   // 1-5 puan (nullable)
   comment    String?                // Yorum (opsiyonel)
-  isUsed     Boolean  @default(false) // Kullanılmış mı?
-  createdAt  DateTime @default(now()) // Oluşturulma tarihi
+  is_used     Boolean  @default(false) // Kullanılmış mı?
+  created_at  DateTime @default(now()) // Oluşturulma tarihi
 }
 ```
 
@@ -57,12 +57,12 @@ model Feedback {
 | Alan | Tip | Null | Açıklama |
 |------|-----|------|----------|
 | id | String | ❌ | Primary key, nanoid ile üretilen benzersiz ID |
-| targetName | String | ❌ | Geri bildirim talep edilen kişi |
+| target_name | String | ❌ | Geri bildirim talep edilen kişi |
 | office | String | ✅ | Merkez, Ünalan, Bahçelievler, Yavuztürk |
 | rating | Int | ✅ | 1-5 arası puan, form dolana kadar null |
 | comment | String | ✅ | Kullanıcının opsiyonel yorumu |
-| isUsed | Boolean | ❌ | Link kullanıldı mı? Default: false |
-| createdAt | DateTime | ❌ | Otomatik timestamp |
+| is_used | Boolean | ❌ | Link kullanıldı mı? Default: false |
+| created_at | DateTime | ❌ | Otomatik timestamp |
 
 ---
 

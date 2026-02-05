@@ -7,11 +7,11 @@ import { deleteFeedback, sendSMSToFeedback } from "@/app/actions/admin";
 interface FeedbackRowProps {
     item: {
         id: string;
-        targetName: string;
+        target_name: string;
         phone?: string | null;
         rating: number | null;
         comment: string | null;
-        createdAt: string;
+        created_at: string;
     };
 }
 
@@ -35,8 +35,8 @@ export default function FeedbackRow({ item }: FeedbackRowProps) {
     };
 
     useEffect(() => {
-        setFormattedDate(format(new Date(item.createdAt), "dd MMM yyyy HH:mm"));
-    }, [item.createdAt]);
+        setFormattedDate(format(new Date(item.created_at), "dd MMM yyyy HH:mm"));
+    }, [item.created_at]);
 
     const handleDelete = () => {
         if (confirm("Bu geri bildirimi silmek istediğinize emin misiniz?")) {
@@ -77,7 +77,7 @@ export default function FeedbackRow({ item }: FeedbackRowProps) {
     return (
         <>
             <tr className={`hover:bg-gray-50 transition ${isPending ? "opacity-50" : ""}`}>
-            <td className="px-6 py-4 font-medium text-gray-900">{item.targetName}</td>
+            <td className="px-6 py-4 font-medium text-gray-900">{item.target_name}</td>
             <td className="px-6 py-4">
                 {item.rating ? (
                     <span
@@ -156,7 +156,7 @@ export default function FeedbackRow({ item }: FeedbackRowProps) {
                                 </div>
                                 
                                 <p className="text-sm text-gray-600 mb-4">
-                                    <strong>{item.targetName}</strong> için feedback linkini SMS olarak gönderin.
+                                    <strong>{item.target_name}</strong> için feedback linkini SMS olarak gönderin.
                                 </p>
                                 
                                 <div className="mb-4">

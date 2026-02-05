@@ -19,12 +19,12 @@ export default function CreateLinkForm() {
     const [sendSms, setSendSms] = useState(false);
 
     const handleSubmit = async (formData: FormData) => {
-        const targetName = formData.get("targetName") as string;
+        const target_name = formData.get("target_name") as string;
         const phoneNumber = sendSms ? (formData.get("phoneNumber") as string) : undefined;
         const office = formData.get("office") as string || undefined;
 
         startTransition(async () => {
-            const result = await createFeedbackLink(targetName, phoneNumber, office);
+            const result = await createFeedbackLink(target_name, phoneNumber, office);
             if (result.error) {
                 setError(result.error);
                 setCreatedLink(null);
@@ -55,7 +55,7 @@ export default function CreateLinkForm() {
                         </label>
                         <input
                             type="text"
-                            name="targetName"
+                            name="target_name"
                             placeholder="Örn: Ahmet Yılmaz"
                             required
                             className="w-full px-3 py-2 border rounded-md border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"

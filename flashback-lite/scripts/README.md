@@ -42,14 +42,14 @@ npx tsx scripts/create-link.ts "Ahmet Yılmaz"
 
 ```typescript
 // 1. Komut satırı argümanını al
-const targetName = process.argv[2];
+const target_name = process.argv[2];
 
 // 2. Kısa ID oluştur (nanoid veya merkezi helper)
 const id = generateId();
 
 // 3. Veritabanına kaydet
 await prisma.feedback.create({
-  data: { id, targetName }
+  data: { id, target_name }
 });
 
 // 4. URL'i konsola yazdır
@@ -60,7 +60,7 @@ console.log(`🔗 URL: http://localhost:3000/feedback/${id}`);
 
 | Parametre | Zorunlu | Açıklama |
 |-----------|---------|----------|
-| targetName | ✅ | Hedef kişi/konu adı |
+| target_name | ✅ | Hedef kişi/konu adı |
 
 ### Hata Durumları
 

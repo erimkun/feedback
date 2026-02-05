@@ -24,11 +24,11 @@ Build a "Flashback Lite" feedback application. Users access a specific URL with 
 - Initialize Prisma with SQLite provider.
 - Create a model named `Feedback` with these fields:
   - `id`: String (UUID) @id
-  - `targetName`: String (Who is the feedback for?)
+  - `target_name`: String (Who is the feedback for?)
   - `rating`: Int? (Nullable initially, 1-5 range)
   - `comment`: String? (Optional)
-  - `isUsed`: Boolean (Default false)
-  - `createdAt`: DateTime (Default now)
+  - `is_used`: Boolean (Default false)
+  - `created_at`: DateTime (Default now)
 - Generate the migration.
 
 ## Step 2: Seed Script
@@ -38,7 +38,7 @@ Build a "Flashback Lite" feedback application. Users access a specific URL with 
 ## Step 3: Frontend Implementation (`/feedback/[id]/page.tsx`)
 - Create a page that captures the `id` from params.
 - Fetch the feedback session from SQLite.
-  - If not found or `isUsed` is true, show a simple error/info message.
+  - If not found or `is_used` is true, show a simple error/info message.
   - If valid, render the Feedback Form.
 
 ## Step 4: Component Logic (The Form)

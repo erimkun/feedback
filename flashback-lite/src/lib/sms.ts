@@ -25,7 +25,7 @@ interface SMSSendPayload {
 export async function sendSMS(
   phoneNumber: string,
   feedbackLink: string,
-  targetName: string,
+  target_name: string,
   office?: string
 ): Promise<SMSResponse> {
   const username = process.env.SMS_API_USERNAME;
@@ -66,7 +66,7 @@ export async function sendSMS(
   // Replace placeholders with actual values
   const officeText = office ? ` ${office} ofisinden` : "";
   const message = messageTemplate
-    .replace("{name}", targetName)
+    .replace("{name}", target_name)
     .replace("{office}", officeText)
     .replace("{link}", feedbackLink);
 

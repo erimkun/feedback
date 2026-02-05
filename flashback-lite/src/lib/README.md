@@ -85,14 +85,14 @@ Posta Güvercini API entegrasyonu.
 
 ### Fonksiyonlar
 
-#### `sendSMS(phoneNumber, feedbackLink, targetName, office?)`
+#### `sendSMS(phoneNumber, feedbackLink, target_name, office?)`
 
 **Parametreler:**
 | Parametre | Tip | Açıklama |
 |-----------|-----|----------|
 | phoneNumber | string | Hedef telefon |
 | feedbackLink | string | Feedback URL |
-| targetName | string | Kişi adı |
+| target_name | string | Kişi adı |
 | office | string? | Ofis adı (opsiyonel) |
 
 **Dönen Değer:**

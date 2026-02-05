@@ -5,9 +5,9 @@ import 'dotenv/config';
 const prisma = new PrismaClient();
 
 async function main() {
-  const targetName = process.argv[2];
+  const target_name = process.argv[2];
 
-  if (!targetName) {
+  if (!target_name) {
     console.error("❌ Lütfen bir isim girin: npx tsx scripts/create-link.ts \"İsim\"");
     process.exit(1);
   }
@@ -19,7 +19,7 @@ async function main() {
   for (const len of tryLens) {
     const candidate = generateId(len);
     try {
-      await prisma.feedback.create({ data: { id: candidate, targetName } });
+      await prisma.feedback.create({ data: { id: candidate, target_name } });
       createdId = candidate;
       break;
     } catch (error) {
@@ -41,7 +41,7 @@ async function main() {
   const baseUrl = baseUrlRaw.replace(/\/$/, "");
 
   console.log("\n✅ Yeni feedback linki oluşturuldu!\n");
-  console.log(`   Hedef: ${targetName}`);
+  console.log(`   Hedef: ${target_name}`);
   console.log(`   ID: ${createdId}`);
   console.log(`\n🔗 URL: ${baseUrl}/anket/${createdId}\n`);
 }

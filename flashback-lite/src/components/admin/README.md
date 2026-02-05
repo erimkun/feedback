@@ -28,10 +28,10 @@ Ana admin panel container. Tab-based navigasyon sağlar.
 interface AdminTabsProps {
   recentFeedback: {
     id: string;
-    targetName: string;
+    target_name: string;
     rating: number | null;
     comment: string | null;
-    createdAt: string;
+    created_at: string;
   }[];
 }
 ```
@@ -118,10 +118,10 @@ Masaüstü tablo görünümü için satır bileşeni.
 interface FeedbackRowProps {
   item: {
     id: string;
-    targetName: string;
+    target_name: string;
     rating: number | null;
     comment: string | null;
-    createdAt: string;
+    created_at: string;
   };
 }
 ```

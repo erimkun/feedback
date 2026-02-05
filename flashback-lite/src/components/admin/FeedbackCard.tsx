@@ -7,10 +7,10 @@ import { deleteFeedback, sendSMSToFeedback } from "@/app/actions/admin";
 interface FeedbackCardProps {
     item: {
         id: string;
-        targetName: string;
+        target_name: string;
         rating: number | null;
         comment: string | null;
-        createdAt: string;
+        created_at: string;
     };
 }
 
@@ -22,8 +22,8 @@ export default function FeedbackCard({ item }: FeedbackCardProps) {
     const [smsStatus, setSmsStatus] = useState<{ type: 'idle' | 'loading' | 'success' | 'error', message?: string }>({ type: 'idle' });
 
     useEffect(() => {
-        setFormattedDate(format(new Date(item.createdAt), "dd MMM yyyy HH:mm"));
-    }, [item.createdAt]);
+        setFormattedDate(format(new Date(item.created_at), "dd MMM yyyy HH:mm"));
+    }, [item.created_at]);
 
     const handleDelete = () => {
         if (confirm("Bu geri bildirimi silmek istediğinize emin misiniz?")) {
@@ -66,7 +66,7 @@ export default function FeedbackCard({ item }: FeedbackCardProps) {
             <div className={`bg-white rounded-lg shadow-sm border border-gray-200 p-4 ${isPending ? "opacity-50" : ""}`}>
             <div className="flex justify-between items-start mb-3">
                 <div>
-                    <h4 className="font-medium text-gray-900">{item.targetName}</h4>
+                    <h4 className="font-medium text-gray-900">{item.target_name}</h4>
                     <p className="text-xs text-gray-500 mt-1">{formattedDate}</p>
                 </div>
                 {item.rating ? (
@@ -126,7 +126,7 @@ export default function FeedbackCard({ item }: FeedbackCardProps) {
                         </div>
                         
                         <p className="text-sm text-gray-600 mb-4">
-                            <strong>{item.targetName}</strong> için feedback linkini SMS olarak gönderin.
+                            <strong>{item.target_name}</strong> için feedback linkini SMS olarak gönderin.
                         </p>
                         
                         <div className="mb-4">

@@ -6,25 +6,26 @@ generator client {
 }
 
 // SQLite (Local)
-datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
-}
-
-// PostgreSQL (Neon) - Uncomment below and comment SQLite to use PostgreSQL
+// Local datasource (was SQLite) - commented out to use PostgreSQL
 // datasource db {
-//   provider = "postgresql"
+//   provider = "sqlite"
 //   url      = env("DATABASE_URL")
 // }
 
+// PostgreSQL datasource - using DATABASE_URL from environment
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
 model Feedback {
   id         String   @id // UUID
-  targetName String   // Who is the feedback for?
+  target_name String   // Who is the feedback for?
   phone      String?  // Phone number
   office     String?  // Merkez, Ünalan, Bahçelievler, Yavuztürk
   rating     Int?     // 1-5 range, nullable initially
   comment    String?  // Optional comment
-  isUsed     Boolean  @default(false)
-  createdAt  DateTime @default(now())
+  is_used     Boolean  @default(false)
+  created_at  DateTime @default(now())
   @@map("kentas_anket")
 }

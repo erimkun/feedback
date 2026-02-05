@@ -7,10 +7,10 @@ import { getCalendarData } from "@/app/actions/admin";
 
 interface CalendarFeedback {
     id: string;
-    targetName: string;
+    target_name: string;
     rating: number | null;
     office: string | null;
-    createdAt: string;
+    created_at: string;
 }
 
 interface DayData {
@@ -215,7 +215,7 @@ export default function FeedbackCalendar() {
                                 {selectedDay.feedbacks.map((fb) => (
                                     <div key={fb.id} className="flex items-center justify-between bg-white rounded-lg p-2">
                                         <div>
-                                            <div className="font-medium text-gray-900">{fb.targetName}</div>
+                                            <div className="font-medium text-gray-900">{fb.target_name}</div>
                                             <div className="text-xs text-gray-500">{fb.office || "Ofis belirtilmemiş"}</div>
                                         </div>
                                         <div className={`px-2 py-1 rounded-full text-white text-xs font-bold ${getRatingBadge(fb.rating)}`}>

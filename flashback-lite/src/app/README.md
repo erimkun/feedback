@@ -58,7 +58,7 @@ Dinamik URL parametresi ile çalışan feedback formu.
 ### Akış
 1. URL'den ID al
 2. Veritabanında kontrol et
-3. `isUsed` durumuna göre form veya mesaj göster
+3. `is_used` durumuna göre form veya mesaj göster
 
 ---
 

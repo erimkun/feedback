@@ -12,10 +12,10 @@ type Tab = "links" | "stats";
 interface AdminTabsProps {
     recentFeedback: {
         id: string;
-        targetName: string;
+        target_name: string;
         rating: number | null;
         comment: string | null;
-        createdAt: string;
+        created_at: string;
     }[];
 }
 

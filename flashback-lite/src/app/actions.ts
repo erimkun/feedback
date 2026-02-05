@@ -17,7 +17,7 @@ export async function submitFeedback(
       return { success: false, error: "Bu feedback linki bulunamadı." };
     }
 
-    if (feedback.isUsed) {
+    if (feedback.is_used) {
       return { success: false, error: "Bu link daha önce kullanılmış." };
     }
 
@@ -32,7 +32,7 @@ export async function submitFeedback(
       data: {
         rating,
         comment: comment || null,
-        isUsed: true,
+        is_used: true,
       },
     });
 

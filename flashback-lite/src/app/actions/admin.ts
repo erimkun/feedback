@@ -8,10 +8,10 @@ import { revalidatePath } from "next/cache";
 
 export async function getFeedbackStats() {
     const total = await prisma.feedback.count();
-    const used = await prisma.feedback.count({ where: { isUsed: true } });
+    const used = await prisma.feedback.count({ where: { is_used: true } });
 
     const ratings = await prisma.feedback.findMany({
-        where: { isUsed: true, rating: { not: null } },
+        where: { is_used: true, rating: { not: null } },
         select: { rating: true },
     });
 
@@ -56,10 +56,10 @@ export async function getAdvancedStats(
     endDate?: string,
     office?: string
 ): Promise<AdvancedStats> {
-    const whereClause: Record<string, unknown> = { isUsed: true };
+    const whereClause: Record<string, unknown> = { is_used: true };
     
     if (startDate && endDate) {
-        whereClause.createdAt = {
+        whereClause.created_at = {
             gte: new Date(startDate),
             lte: new Date(endDate + "T23:59:59.999Z"),
         };
@@ -76,9 +76,9 @@ export async function getAdvancedStats(
             id: true,
             rating: true,
             office: true,
-            createdAt: true,
+            created_at: true,
         },
-        orderBy: { createdAt: "asc" },
+        orderBy: { created_at: "asc" },
     });
 
     const total = feedback.length;
@@ -128,7 +128,7 @@ export async function getAdvancedStats(
     // Time series - group by day
     const dateMap = new Map<string, { count: number; totalRating: number; positiveCount: number; negativeCount: number }>();
     withRating.forEach(f => {
-        const dateStr = f.createdAt.toISOString().split("T")[0];
+        const dateStr = f.created_at.toISOString().split("T")[0];
         const current = dateMap.get(dateStr) || { count: 0, totalRating: 0, positiveCount: 0, negativeCount: 0 };
         current.count++;
         current.totalRating += f.rating || 0;
@@ -163,14 +163,14 @@ export async function getAdvancedStats(
 
 export async function getRecentFeedback() {
     const feedback = await prisma.feedback.findMany({
-        orderBy: { createdAt: "desc" },
+        orderBy: { created_at: "desc" },
         take: 50,
     });
     
     // Convert Date to ISO string to avoid hydration mismatch
     return feedback.map(item => ({
         ...item,
-        createdAt: item.createdAt.toISOString(),
+        created_at: item.created_at.toISOString(),
     }));
 }
 
@@ -181,12 +181,12 @@ export async function getNegativeFeedbacks(
     office?: string
 ) {
     const whereClause: Record<string, unknown> = { 
-        isUsed: true,
+        is_used: true,
         rating: { lte: 2 }
     };
     
     if (startDate && endDate) {
-        whereClause.createdAt = {
+        whereClause.created_at = {
             gte: new Date(startDate),
             lte: new Date(endDate + "T23:59:59.999Z"),
         };
@@ -198,12 +198,12 @@ export async function getNegativeFeedbacks(
 
     const feedback = await prisma.feedback.findMany({
         where: whereClause,
-        orderBy: { createdAt: "desc" },
+        orderBy: { created_at: "desc" },
     });
     
     return feedback.map(item => ({
         ...item,
-        createdAt: item.createdAt.toISOString(),
+        created_at: item.created_at.toISOString(),
     }));
 }
 
@@ -316,27 +316,27 @@ export async function getCalendarData(year: number, month: number) {
     
     const feedback = await prisma.feedback.findMany({
         where: {
-            isUsed: true,
-            createdAt: {
+            is_used: true,
+            created_at: {
                 gte: startDate,
                 lte: endDate,
             },
         },
         select: {
             id: true,
-            targetName: true,
+            target_name: true,
             rating: true,
             office: true,
-            createdAt: true,
+            created_at: true,
         },
-        orderBy: { createdAt: "asc" },
+        orderBy: { created_at: "asc" },
     });
     
     // Group by day
     const dayMap = new Map<number, { count: number; avgRating: number; feedbacks: typeof feedback }>();
     
     feedback.forEach(f => {
-        const day = f.createdAt.getDate();
+        const day = f.created_at.getDate();
         const current = dayMap.get(day) || { count: 0, avgRating: 0, feedbacks: [] };
         current.feedbacks.push(f);
         current.count = current.feedbacks.length;
@@ -350,13 +350,13 @@ export async function getCalendarData(year: number, month: number) {
         avgRating: data.avgRating,
         feedbacks: data.feedbacks.map(f => ({
             ...f,
-            createdAt: f.createdAt.toISOString(),
+            created_at: f.created_at.toISOString(),
         })),
     }));
 }
 
-export async function createFeedbackLink(targetName: string, phoneNumber?: string, office?: string) {
-    if (!targetName) return { error: "İsim gerekli" };
+export async function createFeedbackLink(target_name: string, phoneNumber?: string, office?: string) {
+    if (!target_name) return { error: "İsim gerekli" };
 
     // Validate phone number if provided
     if (phoneNumber && !isValidPhoneNumber(phoneNumber)) {
@@ -375,7 +375,7 @@ export async function createFeedbackLink(targetName: string, phoneNumber?: strin
                 await prisma.feedback.create({
                     data: {
                         id: candidate,
-                        targetName,
+                        target_name: target_name,
                         phone: phoneNumber || null,
                         office: office || null,
                     },
@@ -402,7 +402,7 @@ export async function createFeedbackLink(targetName: string, phoneNumber?: strin
         // Send SMS if phone number is provided
         let smsResult = null;
         if (phoneNumber) {
-            smsResult = await sendSMS(phoneNumber, link, targetName, office);
+            smsResult = await sendSMS(phoneNumber, link, target_name, office);
         }
 
         revalidatePath("/admin");
@@ -445,7 +445,7 @@ export async function sendSMSToFeedback(feedbackId: string, phoneNumber: string)
             where: { id: feedbackId },
             select: {
                 id: true,
-                targetName: true,
+                target_name: true,
                 office: true,
             },
         });
@@ -456,7 +456,7 @@ export async function sendSMSToFeedback(feedbackId: string, phoneNumber: string)
 
         const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000').replace(/\/$/, "");
         const link = `${baseUrl}/anket/${feedbackId}`;
-        const smsResult = await sendSMS(phoneNumber, link, feedback.targetName, feedback.office ?? undefined);
+        const smsResult = await sendSMS(phoneNumber, link, feedback.target_name, feedback.office ?? undefined);
 
         return {
             success: smsResult.success,
@@ -519,7 +519,7 @@ export async function createBulkFeedbackLinks(contacts: BulkContactItem[]): Prom
                     await prisma.feedback.create({
                         data: {
                             id: candidate,
-                            targetName: contact.name,
+                            target_name: contact.name,
                             phone: contact.phone || null,
                             office: contact.office || null,
                         },

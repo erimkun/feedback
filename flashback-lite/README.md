@@ -83,9 +83,9 @@ Kişiler ve onlara özel linkler, terminal üzerinden çalışan bir script yard
 *   **Komut:** `npm run create-link "Kişi Adı"`
 *   **Arka Plan:** Bu komut `scripts/create-link.ts` dosyasını çalıştırır.
 *   **İşleyiş:**
-    1.  Script, verdiğiniz ismi (`targetName`) alır.
+    1.  Script, verdiğiniz ismi (`target_name`) alır.
     2.  Benzersiz bir **UUID** (örn: `123e4567-e89b...`) oluşturur.
-    3.  Veritabanına (SQLite) yeni bir kayıt ekler: `{ id: UUID, targetName: "Kişi Adı", isUsed: false }`.
+    3.  Veritabanına (SQLite) yeni bir kayıt ekler: `{ id: UUID, target_name: "Kişi Adı", is_used: false }`.
     4.  Size bu ID'ye sahip özel bir URL verir: `http://localhost:3000/feedback/[UUID]`
 
 ### 2. URL Yapısı
@@ -98,16 +98,16 @@ Veriler yerel bir **SQLite** veritabanında (`prisma/dev.db`) saklanır.
 
 *   **Veri Modeli (`Feedback`):**
     *   `id`: Linkin benzersiz kimliği (UUID).
-    *   `targetName`: Geri bildirimin kimin için olduğu.
+    *   `target_name`: Geri bildirimin kimin için olduğu.
     *   `rating`: Verilen puan (1-5 arası).
     *   `comment`: (Opsiyonel) Kullanıcı yorumu.
-    *   `isUsed`: Linkin kullanılıp kullanılmadığını belirtir (Tek seferlik kullanım için).
+    *   `is_used`: Linkin kullanılıp kullanılmadığını belirtir (Tek seferlik kullanım için).
 
 Kullanıcı formu doldurup "Gönder" dediğinde:
 1.  `submitFeedback` fonksiyonu (Server Action) çalışır.
 2.  ID'ye göre kayıt bulunur.
 3.  Eğer link daha önce kullanılmamışsa, puan ve yorum veritabanına kaydedilir.
-4.  `isUsed` alanı `true` olarak işaretlenir, böylece link tekrar kullanılamaz.
+4.  `is_used` alanı `true` olarak işaretlenir, böylece link tekrar kullanılamaz.
 
 ## Kurulum ve Çalıştırma
 
