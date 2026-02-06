@@ -144,7 +144,7 @@ export default function FeedbackForm({ feedbackId, target_name }: FeedbackFormPr
           }
         }
       `}</style>
-      
+
       <div className="bg-white h-[100dvh] overflow-hidden flex flex-col font-['Manrope',sans-serif] fixed inset-0">
         {/* Main Content */}
         <main className="flex-1 flex flex-col items-center justify-center px-4 py-4 max-w-lg mx-auto w-full">
@@ -164,10 +164,10 @@ export default function FeedbackForm({ feedbackId, target_name }: FeedbackFormPr
               {/* Question */}
               <div className="text-center">
                 <h3 className="text-gray-900 text-base font-extrabold leading-relaxed">
-                  Kentsel Dönüşüm planlama süreci deneyiminizi nasıl değerlendirirsiniz?
+                  Üsküdar Yenileniyor kapsamında Kentaş tarafından sunulan hizmet deneyiminizi nasıl değerlendirirsiniz?
                 </h3>
                 <p className="text-gray-500 text-xs mt-2">
-                  Görüşleriniz mahallemizin geleceğini şekillendiriyor.
+                  Görüşleriniz Üsküdar'ımızın geleceğini şekillendiriyor.
                 </p>
               </div>
 
@@ -179,16 +179,14 @@ export default function FeedbackForm({ feedbackId, target_name }: FeedbackFormPr
                     type="button"
                     data-value={value}
                     onClick={() => setSelectedRating(value)}
-                    className={`rating-item flex flex-col items-center gap-1 group outline-none ${
-                      selectedRating === value ? "selected" : ""
-                    }`}
+                    className={`rating-item flex flex-col items-center gap-1 group outline-none ${selectedRating === value ? "selected" : ""
+                      }`}
                   >
                     <div
-                      className={`rounded-full w-12 h-12 flex items-center justify-center transition-all ${
-                        selectedRating === value
-                          ? "bg-[#E42617]/10"
-                          : "bg-[#f7f7f8] group-hover:bg-[#E42617]/10"
-                      }`}
+                      className={`rounded-full w-12 h-12 flex items-center justify-center transition-all ${selectedRating === value
+                        ? "bg-[#E42617]/10"
+                        : "bg-[#f7f7f8] group-hover:bg-[#E42617]/10"
+                        }`}
                     >
                       {isSvg ? (
                         <img
@@ -196,8 +194,8 @@ export default function FeedbackForm({ feedbackId, target_name }: FeedbackFormPr
                           alt="Rating 5"
                           className="w-6 h-6 transition-all rating-svg"
                           style={{
-                            filter: selectedRating === value 
-                              ? "invert(42%) sepia(93%) saturate(1352%) hue-rotate(87deg) brightness(95%) contrast(101%)" 
+                            filter: selectedRating === value
+                              ? "invert(42%) sepia(93%) saturate(1352%) hue-rotate(87deg) brightness(95%) contrast(101%)"
                               : "invert(69%) sepia(11%) saturate(233%) hue-rotate(179deg) brightness(93%) contrast(88%)",
                             opacity: 1,
                           }}
@@ -258,11 +256,10 @@ export default function FeedbackForm({ feedbackId, target_name }: FeedbackFormPr
                   type="button"
                   onClick={handleSubmit}
                   disabled={!selectedRating || isSubmitting}
-                  className={`w-full flex cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 px-6 bg-[#E42617] text-white text-sm font-extrabold shadow-lg shadow-[#E42617]/20 active:scale-[0.98] transition-all ${
-                    !selectedRating || isSubmitting
-                      ? "opacity-50 cursor-not-allowed"
-                      : ""
-                  }`}
+                  className={`w-full flex cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 px-6 bg-[#E42617] text-white text-sm font-extrabold shadow-lg shadow-[#E42617]/20 active:scale-[0.98] transition-all ${!selectedRating || isSubmitting
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
+                    }`}
                 >
                   <span>{isSubmitting ? "Gönderiliyor..." : "Geri Bildirim Gönder"}</span>
                 </button>
