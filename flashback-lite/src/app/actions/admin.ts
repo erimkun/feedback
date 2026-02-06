@@ -545,8 +545,8 @@ export async function createBulkFeedbackLinks(contacts: BulkContactItem[]): Prom
     await verifyAdmin();
 
     // Validate contacts array length to prevent DoS
-    if (contacts.length > 1000) {
-        throw new Error("Maksimum 1000 kişi gönderilebilir");
+    if (contacts.length > 1500) {
+        throw new Error("Maksimum 1500 kişi gönderilebilir");
     }
 
     const results: BulkSendResult[] = [];
@@ -606,8 +606,25 @@ export async function createBulkFeedbackLinks(contacts: BulkContactItem[]): Prom
             }
 
             const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000').replace(/\/$/, "");
-            const link = `${baseUrl}/feedback/${createdId}`;
-            const smsResult = await sendSMS(contact.phone, link, contact.name, contact.office);
+            const link = `${baseUrl}/anket/${createdId}`;
+
+            // Retry mekanizması: Başarısız SMS'ler için 3 deneme hakkı
+            const maxRetries = 3;
+            let smsResult: { success: boolean; error?: string } = { success: false, error: "SMS gönderilemedi" };
+
+            for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                smsResult = await sendSMS(contact.phone, link, contact.name, contact.office);
+
+                if (smsResult.success) {
+                    break; // Başarılı, döngüden çık
+                }
+
+                // Başarısız ve daha deneme hakkı varsa bekle (exponential backoff)
+                if (attempt < maxRetries) {
+                    const waitTime = attempt * 500; // 500ms, 1000ms
+                    await new Promise(resolve => setTimeout(resolve, waitTime));
+                }
+            }
 
             if (smsResult.success) {
                 results.push({ id: contact.id, name: contact.name, success: true, link });
@@ -616,6 +633,9 @@ export async function createBulkFeedbackLinks(contacts: BulkContactItem[]): Prom
                 results.push({ id: contact.id, name: contact.name, success: false, error: smsResult.error || "SMS gönderilemedi", link });
                 totalFailed++;
             }
+
+            // SMS API'sini yormamak için istekler arası 150ms bekle
+            await new Promise(resolve => setTimeout(resolve, 150));
         } catch (error) {
             console.error("Bulk create error for", contact.name, error);
             results.push({ id: contact.id, name: contact.name, success: false, error: "Link oluşturulurken hata oluştu" });
