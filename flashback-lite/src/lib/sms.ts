@@ -8,6 +8,9 @@ import { formatPhoneNumber, isValidPhoneNumber } from "./phone";
 // Re-export for backwards compatibility
 export { isValidPhoneNumber };
 
+// Only log non-sensitive info in development
+const DEBUG = process.env.NODE_ENV === "development";
+
 interface SMSResponse {
   success: boolean;
   message?: string;
@@ -35,12 +38,15 @@ export async function sendSMS(
   const messageTemplate =
     process.env.SMS_MESSAGE_TEMPLATE || "Sayın {name}, Üsküdar Yenileniyor kapsamında{office} almış olduğunuz hizmeti değerlendirmek için lütfen linke tıklayınız. {link}";
 
-  console.log("[SMS Debug] Config check:", {
-    hasUsername: !!username,
-    hasPassword: !!password,
-    hasApiUrl: !!apiUrl,
-    testMode,
-  });
+  // Safe debug log - no sensitive data
+  if (DEBUG) {
+    console.log("[SMS Debug] Config status:", {
+      hasUsername: !!username,
+      hasPassword: !!password,
+      hasApiUrl: !!apiUrl,
+      testMode,
+    });
+  }
 
   if (!username || !password || !apiUrl) {
     console.error("[SMS Error] Missing config:", {
@@ -72,28 +78,30 @@ export async function sendSMS(
 
   // Test mode - don't actually send SMS
   if (testMode) {
-    console.log("[SMS TEST MODE] Would send SMS:");
-    console.log("  To:", formattedPhone);
-    console.log("  Message:", message);
+    if (DEBUG) {
+      console.log("[SMS TEST MODE] Simulating SMS to:", formattedPhone.slice(0, 4) + "****");
+    }
     return {
       success: true,
       message: "Test modu: SMS simüle edildi",
     };
   }
 
+  // Payload with credentials - NEVER log this
+  const payload = {
+    Username: username,
+    Password: password,
+    Sender: "USKUDARBLD",
+    Receivers: [formattedPhone],
+    Message: message,
+  };
+
+  // Only log safe info
+  if (DEBUG) {
+    console.log("[SMS] Sending to:", formattedPhone.slice(0, 4) + "****");
+  }
+
   try {
-    // Posta Güvercini API format - Send_1_N endpoint için
-    const payload = {
-      Username: username,
-      Password: password,
-      Sender: "USKUDARBLD",
-      Receivers: [formattedPhone],  // Array olarak çoğul
-      Message: message,
-    };
-
-    console.log("[SMS] Sending to:", formattedPhone);
-    console.log("[SMS] Payload:", JSON.stringify(payload, null, 2));
-
     const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
@@ -103,8 +111,11 @@ export async function sendSMS(
     });
 
     const responseText = await response.text();
-    console.log("[SMS] API Response status:", response.status);
-    console.log("[SMS] API Response body:", responseText);
+
+    // Safe logging - no sensitive data
+    if (DEBUG) {
+      console.log("[SMS] API Response status:", response.status);
+    }
 
     if (!response.ok) {
       return {
@@ -141,8 +152,11 @@ export async function sendSMS(
         message: "SMS başarıyla gönderildi",
       };
     } else {
-      const errorMsg = data.StatusDescription || data.message || data.error || data.description || data.error_description || JSON.stringify(data);
-      console.error("[SMS] API Error:", errorMsg);
+      const errorMsg = data.StatusDescription || data.message || data.error || data.description || data.error_description || "Bilinmeyen hata";
+      // Log error without full response body
+      if (DEBUG) {
+        console.error("[SMS] API Error:", errorMsg);
+      }
       return {
         success: false,
         error: errorMsg,

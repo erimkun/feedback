@@ -1,13 +1,24 @@
 "use server";
 
 import { SignJWT } from "jose";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { checkRateLimit, getClientIP } from "@/lib/rateLimit";
 
 const SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "default_secret");
 const ALG = "HS256";
 
 export async function login(prevState: any, formData: FormData) {
+  // Rate limiting - prevent brute force
+  const headersList = await headers();
+  const clientIP = getClientIP(headersList);
+
+  try {
+    await checkRateLimit(clientIP, "LOGIN");
+  } catch (error) {
+    return { success: false, error: (error as Error).message };
+  }
+
   const username = formData.get("username") as string;
   const password = formData.get("password") as string;
 
@@ -20,12 +31,13 @@ export async function login(prevState: any, formData: FormData) {
       .setIssuedAt()
       .setExpirationTime("2h")
       .sign(SECRET);
-      
+
     const cookieStore = await cookies();
 
     cookieStore.set("admin_token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      sameSite: "strict", // CSRF protection
       maxAge: 60 * 60 * 2, // 2 hours
       path: "/",
     });

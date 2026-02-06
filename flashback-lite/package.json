@@ -2,7 +2,7 @@
   "name": "flashback-lite",
   "version": "0.1.0",
   "private": true,
-    "scripts": {
+  "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
     "migrate:deploy": "prisma migrate deploy",
@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.36.2",
     "date-fns": "^4.1.0",
     "gsap": "^3.14.2",
     "jose": "^6.1.3",

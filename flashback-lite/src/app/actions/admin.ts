@@ -2,11 +2,25 @@
 
 import { prisma } from "@/lib/prisma";
 import { sendSMS, isValidPhoneNumber } from "@/lib/sms";
+import { verifyAdmin } from "@/lib/auth";
 import generateId from "@/lib/id";
 import { Prisma } from '@prisma/client';
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
+
+// Input validation schemas
+const createLinkSchema = z.object({
+    target_name: z.string().min(1, "İsim gerekli").max(100, "İsim çok uzun").trim(),
+    phoneNumber: z.string().regex(/^[0-9+\s\-()]+$/, "Geçersiz telefon numarası").optional().nullable(),
+    office: z.string().max(50, "Ofis adı çok uzun").optional().nullable(),
+});
+
+const feedbackIdSchema = z.string().min(1).max(20);
+const dateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional();
+const officeSchema = z.string().max(50).optional();
 
 export async function getFeedbackStats() {
+    await verifyAdmin();
     const total = await prisma.feedback.count();
     const used = await prisma.feedback.count({ where: { is_used: true } });
 
@@ -28,6 +42,7 @@ export async function getFeedbackStats() {
 }
 
 export async function getOfficeList() {
+    await verifyAdmin();
     const offices = await prisma.feedback.findMany({
         where: { office: { not: null } },
         select: { office: true },
@@ -56,15 +71,22 @@ export async function getAdvancedStats(
     endDate?: string,
     office?: string
 ): Promise<AdvancedStats> {
+    await verifyAdmin();
+
+    // Validate inputs
+    dateSchema.parse(startDate);
+    dateSchema.parse(endDate);
+    officeSchema.parse(office);
+
     const whereClause: Record<string, unknown> = { is_used: true };
-    
+
     if (startDate && endDate) {
         whereClause.created_at = {
             gte: new Date(startDate),
             lte: new Date(endDate + "T23:59:59.999Z"),
         };
     }
-    
+
     if (office && office !== "all") {
         whereClause.office = office;
     }
@@ -84,7 +106,7 @@ export async function getAdvancedStats(
     const total = feedback.length;
     const withRating = feedback.filter(f => f.rating !== null);
     const used = withRating.length;
-    
+
     const averageRating = used > 0
         ? withRating.reduce((acc, curr) => acc + (curr.rating || 0), 0) / used
         : 0;
@@ -100,7 +122,7 @@ export async function getAdvancedStats(
     const npsPromoters = withRating.filter(f => f.rating === 5).length;
     const npsPassives = withRating.filter(f => f.rating === 3 || f.rating === 4).length;
     const npsDetractors = withRating.filter(f => (f.rating || 0) <= 2).length;
-    const npsScore = used > 0 
+    const npsScore = used > 0
         ? Math.round(((npsPromoters / used) - (npsDetractors / used)) * 100)
         : 0;
 
@@ -162,11 +184,12 @@ export async function getAdvancedStats(
 }
 
 export async function getRecentFeedback() {
+    await verifyAdmin();
     const feedback = await prisma.feedback.findMany({
         orderBy: { created_at: "desc" },
         take: 50,
     });
-    
+
     // Convert Date to ISO string to avoid hydration mismatch
     return feedback.map(item => ({
         ...item,
@@ -180,18 +203,25 @@ export async function getNegativeFeedbacks(
     endDate?: string,
     office?: string
 ) {
-    const whereClause: Record<string, unknown> = { 
+    await verifyAdmin();
+
+    // Validate inputs
+    dateSchema.parse(startDate);
+    dateSchema.parse(endDate);
+    officeSchema.parse(office);
+
+    const whereClause: Record<string, unknown> = {
         is_used: true,
         rating: { lte: 2 }
     };
-    
+
     if (startDate && endDate) {
         whereClause.created_at = {
             gte: new Date(startDate),
             lte: new Date(endDate + "T23:59:59.999Z"),
         };
     }
-    
+
     if (office && office !== "all") {
         whereClause.office = office;
     }
@@ -200,7 +230,7 @@ export async function getNegativeFeedbacks(
         where: whereClause,
         orderBy: { created_at: "desc" },
     });
-    
+
     return feedback.map(item => ({
         ...item,
         created_at: item.created_at.toISOString(),
@@ -224,6 +254,7 @@ export async function getComparisonStats(
         volumeChange: number;
     };
 }> {
+    await verifyAdmin();
     const period1Stats = await getAdvancedStats(period1Start, period1End, office);
     const period2Stats = await getAdvancedStats(period2Start, period2End, office);
 
@@ -249,6 +280,7 @@ export async function getOfficeComparison(
     officeA: string,
     officeB: string
 ) {
+    await verifyAdmin();
     const statsA = await getAdvancedStats(start, end, officeA);
     const statsB = await getAdvancedStats(start, end, officeB);
 
@@ -280,23 +312,24 @@ export interface MonthlyTarget {
 }
 
 export async function getMonthlyProgress(year: number, month: number): Promise<MonthlyTarget> {
+    await verifyAdmin();
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 0, 23, 59, 59);
-    
+
     const stats = await getAdvancedStats(
         startDate.toISOString().split('T')[0],
         endDate.toISOString().split('T')[0]
     );
-    
+
     const positiveRate = stats.used > 0 ? (stats.positiveCount / stats.used) * 100 : 0;
-    
+
     // Default targets (can be made configurable later)
     const targets = {
         nps: 50,
         avgRating: 4.0,
         positiveRate: 75,
     };
-    
+
     return {
         month: `${year}-${String(month).padStart(2, '0')}`,
         targetNps: targets.nps,
@@ -311,9 +344,10 @@ export async function getMonthlyProgress(year: number, month: number): Promise<M
 
 // Get calendar data for feedback visualization
 export async function getCalendarData(year: number, month: number) {
+    await verifyAdmin();
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 0, 23, 59, 59);
-    
+
     const feedback = await prisma.feedback.findMany({
         where: {
             is_used: true,
@@ -331,10 +365,10 @@ export async function getCalendarData(year: number, month: number) {
         },
         orderBy: { created_at: "asc" },
     });
-    
+
     // Group by day
     const dayMap = new Map<number, { count: number; avgRating: number; feedbacks: typeof feedback }>();
-    
+
     feedback.forEach(f => {
         const day = f.created_at.getDate();
         const current = dayMap.get(day) || { count: 0, avgRating: 0, feedbacks: [] };
@@ -343,7 +377,7 @@ export async function getCalendarData(year: number, month: number) {
         current.avgRating = current.feedbacks.reduce((sum, fb) => sum + (fb.rating || 0), 0) / current.count;
         dayMap.set(day, current);
     });
-    
+
     return Array.from(dayMap.entries()).map(([day, data]) => ({
         day,
         count: data.count,
@@ -356,10 +390,19 @@ export async function getCalendarData(year: number, month: number) {
 }
 
 export async function createFeedbackLink(target_name: string, phoneNumber?: string, office?: string) {
-    if (!target_name) return { error: "İsim gerekli" };
+    await verifyAdmin();
+
+    // Validate input with zod schema
+    const validation = createLinkSchema.safeParse({ target_name, phoneNumber, office });
+    if (!validation.success) {
+        const firstIssue = validation.error.issues?.[0];
+        return { error: firstIssue?.message || "Geçersiz veri" };
+    }
+
+    const validatedData = validation.data;
 
     // Validate phone number if provided
-    if (phoneNumber && !isValidPhoneNumber(phoneNumber)) {
+    if (validatedData.phoneNumber && !isValidPhoneNumber(validatedData.phoneNumber)) {
         return { error: "Geçersiz telefon numarası formatı" };
     }
 
@@ -406,8 +449,8 @@ export async function createFeedbackLink(target_name: string, phoneNumber?: stri
         }
 
         revalidatePath("/admin");
-        return { 
-            success: true, 
+        return {
+            success: true,
             link,
             smsSent: smsResult?.success || false,
             smsError: smsResult?.error
@@ -419,6 +462,11 @@ export async function createFeedbackLink(target_name: string, phoneNumber?: stri
 }
 
 export async function deleteFeedback(id: string) {
+    await verifyAdmin();
+
+    // Validate input
+    feedbackIdSchema.parse(id);
+
     try {
         await prisma.feedback.delete({
             where: { id },
@@ -432,7 +480,10 @@ export async function deleteFeedback(id: string) {
 }
 
 export async function sendSMSToFeedback(feedbackId: string, phoneNumber: string) {
-    if (!feedbackId) return { success: false, error: "Feedback ID gerekli" };
+    await verifyAdmin();
+
+    // Validate inputs
+    feedbackIdSchema.parse(feedbackId);
     if (!phoneNumber) return { success: false, error: "Telefon numarası gerekli" };
 
     // Validate phone number
@@ -491,6 +542,13 @@ export async function createBulkFeedbackLinks(contacts: BulkContactItem[]): Prom
     totalSuccess: number;
     totalFailed: number;
 }> {
+    await verifyAdmin();
+
+    // Validate contacts array length to prevent DoS
+    if (contacts.length > 1000) {
+        throw new Error("Maksimum 1000 kişi gönderilebilir");
+    }
+
     const results: BulkSendResult[] = [];
     let totalSuccess = 0;
     let totalFailed = 0;
