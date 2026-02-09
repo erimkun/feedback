@@ -29,14 +29,15 @@ export async function sendSMS(
   phoneNumber: string,
   feedbackLink: string,
   target_name: string,
-  office?: string
+  office?: string,
+  customTemplate?: string
 ): Promise<SMSResponse> {
   const username = process.env.SMS_API_USERNAME;
   const password = process.env.SMS_API_PASSWORD;
   const apiUrl = process.env.SMS_API_URL;
   const testMode = process.env.SMS_TEST_MODE === "true";
   const messageTemplate =
-    process.env.SMS_MESSAGE_TEMPLATE || "Sayın {name}, Üsküdar Yenileniyor kapsamında{office} almış olduğunuz hizmeti değerlendirmek için lütfen linke tıklayınız. {link}";
+    customTemplate || process.env.SMS_MESSAGE_TEMPLATE || "Sayın {name}, Üsküdar Yenileniyor kapsamında{office} almış olduğunuz hizmeti değerlendirmek için lütfen linke tıklayınız. {link}";
 
   // Safe debug log - no sensitive data
   if (DEBUG) {

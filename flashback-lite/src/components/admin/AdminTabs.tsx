@@ -6,6 +6,7 @@ import BulkUpload from "@/components/admin/BulkUpload";
 import StatsDashboard from "@/components/admin/StatsDashboard";
 import FeedbackRow from "@/components/admin/FeedbackRow";
 import FeedbackCard from "@/components/admin/FeedbackCard";
+import ResendSMSManager from "@/components/admin/ResendSMSManager";
 
 type Tab = "links" | "stats";
 
@@ -28,11 +29,10 @@ export default function AdminTabs({ recentFeedback }: AdminTabsProps) {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-1 flex gap-1">
                 <button
                     onClick={() => setActiveTab("links")}
-                    className={`flex-1 px-4 py-3 rounded-md font-medium text-sm transition ${
-                        activeTab === "links"
+                    className={`flex-1 px-4 py-3 rounded-md font-medium text-sm transition ${activeTab === "links"
                             ? "bg-blue-600 text-white shadow-sm"
                             : "text-gray-600 hover:bg-gray-100"
-                    }`}
+                        }`}
                 >
                     <span className="flex items-center justify-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -43,11 +43,10 @@ export default function AdminTabs({ recentFeedback }: AdminTabsProps) {
                 </button>
                 <button
                     onClick={() => setActiveTab("stats")}
-                    className={`flex-1 px-4 py-3 rounded-md font-medium text-sm transition ${
-                        activeTab === "stats"
+                    className={`flex-1 px-4 py-3 rounded-md font-medium text-sm transition ${activeTab === "stats"
                             ? "bg-blue-600 text-white shadow-sm"
                             : "text-gray-600 hover:bg-gray-100"
-                    }`}
+                        }`}
                 >
                     <span className="flex items-center justify-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -66,6 +65,10 @@ export default function AdminTabs({ recentFeedback }: AdminTabsProps) {
 
                     {/* Bulk Upload Section */}
                     <BulkUpload />
+
+
+                    {/* Resend SMS Section */}
+                    <ResendSMSManager />
 
                     {/* Recent Feedback Section - Desktop Table */}
                     <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">

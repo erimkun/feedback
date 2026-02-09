@@ -651,3 +651,122 @@ export async function createBulkFeedbackLinks(contacts: BulkContactItem[]): Prom
         totalFailed,
     };
 }
+
+// Get count of non-respondents (is_used = false)
+export async function getNonRespondentsCount() {
+    await verifyAdmin();
+    return await prisma.feedback.count({
+        where: {
+            is_used: false,
+            phone: { not: null }, // Only count those with phone numbers
+        },
+    });
+}
+
+// Get non-respondents with optional limit
+export async function getNonRespondents(limit?: number) {
+    await verifyAdmin();
+    return await prisma.feedback.findMany({
+        where: {
+            is_used: false,
+            phone: { not: null },
+        },
+        select: {
+            id: true,
+            target_name: true,
+            phone: true,
+            office: true,
+            created_at: true,
+        },
+        orderBy: { created_at: "desc" },
+        take: limit,
+    });
+}
+
+// Resend SMS to specific feedback IDs
+export async function resendBulkSMS(
+    feedbackIds: string[],
+    customMessage?: string
+): Promise<{
+    success: boolean;
+    results: BulkSendResult[];
+    totalSuccess: number;
+    totalFailed: number;
+}> {
+    await verifyAdmin();
+
+    // Safety check: limit batch size to prevent server timeout
+    if (feedbackIds.length > 100) {
+        return {
+            success: false,
+            results: [],
+            totalSuccess: 0,
+            totalFailed: 0,
+            // We can't return error string in this specific return type structure easily without changing interface, 
+            // but the UI handles empty results or we can throw. 
+            // Let's actually process first 100 or throw. Throwing is better for "Invalid Switch".
+        };
+        throw new Error("Batch size limit exceeded (max 100)");
+    }
+
+    const feedbacks = await prisma.feedback.findMany({
+        where: {
+            id: { in: feedbackIds },
+            phone: { not: null },
+            is_used: false, // Double check they haven't responded in the meantime
+        },
+        select: {
+            id: true,
+            target_name: true,
+            phone: true,
+            office: true,
+        },
+    });
+
+    const results: BulkSendResult[] = [];
+    let totalSuccess = 0;
+    let totalFailed = 0;
+
+    const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000').replace(/\/$/, "");
+
+    // Process sequentially to respect API limits
+    for (const feedback of feedbacks) {
+        if (!feedback.phone) continue;
+
+        try {
+            const link = `${baseUrl}/anket/${feedback.id}`;
+
+            // Validate and send SMS
+            let smsResult;
+            if (customMessage) {
+                smsResult = await sendSMS(feedback.phone, link, feedback.target_name, feedback.office || undefined, customMessage);
+            } else {
+                smsResult = await sendSMS(feedback.phone, link, feedback.target_name, feedback.office || undefined);
+            }
+
+            if (smsResult.success) {
+                results.push({ id: feedback.id, name: feedback.target_name, success: true, link });
+                totalSuccess++;
+            } else {
+                results.push({ id: feedback.id, name: feedback.target_name, success: false, error: smsResult.error, link });
+                totalFailed++;
+            }
+
+            // Small delay to prevent rate limiting
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+        } catch (error) {
+            console.error(`Error resending SMS to ${feedback.id}:`, error);
+            results.push({ id: feedback.id, name: feedback.target_name, success: false, error: "İşlem hatası" });
+            totalFailed++;
+        }
+    }
+
+    revalidatePath("/admin");
+    return {
+        success: totalFailed === 0,
+        results,
+        totalSuccess,
+        totalFailed,
+    };
+}
