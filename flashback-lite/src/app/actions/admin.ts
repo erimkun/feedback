@@ -736,12 +736,26 @@ export async function resendBulkSMS(
         try {
             const link = `${baseUrl}/anket/${feedback.id}`;
 
-            // Validate and send SMS
-            let smsResult;
-            if (customMessage) {
-                smsResult = await sendSMS(feedback.phone, link, feedback.target_name, feedback.office || undefined, customMessage);
-            } else {
-                smsResult = await sendSMS(feedback.phone, link, feedback.target_name, feedback.office || undefined);
+            // Validate and send SMS with retry logic
+            const maxRetries = 3;
+            let smsResult: { success: boolean; error?: string } = { success: false, error: "SMS gönderilemedi" };
+
+            for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                if (customMessage) {
+                    smsResult = await sendSMS(feedback.phone, link, feedback.target_name, feedback.office || undefined, customMessage);
+                } else {
+                    smsResult = await sendSMS(feedback.phone, link, feedback.target_name, feedback.office || undefined);
+                }
+
+                if (smsResult.success) {
+                    break;
+                }
+
+                // Wait before retry (exponential backoff)
+                if (attempt < maxRetries) {
+                    const waitTime = attempt * 500;
+                    await new Promise(resolve => setTimeout(resolve, waitTime));
+                }
             }
 
             if (smsResult.success) {
