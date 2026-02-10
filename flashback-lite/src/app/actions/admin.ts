@@ -237,6 +237,134 @@ export async function getNegativeFeedbacks(
     }));
 }
 
+// Get positive feedbacks (rating 4-5) for ticket system
+export async function getPositiveFeedbacks(
+    startDate?: string,
+    endDate?: string,
+    office?: string
+) {
+    await verifyAdmin();
+
+    // Validate inputs
+    dateSchema.parse(startDate);
+    dateSchema.parse(endDate);
+    officeSchema.parse(office);
+
+    const whereClause: Record<string, unknown> = {
+        is_used: true,
+        rating: { gte: 4 }
+    };
+
+    if (startDate && endDate) {
+        whereClause.created_at = {
+            gte: new Date(startDate),
+            lte: new Date(endDate + "T23:59:59.999Z"),
+        };
+    }
+
+    if (office && office !== "all") {
+        whereClause.office = office;
+    }
+
+    const feedback = await prisma.feedback.findMany({
+        where: whereClause,
+        orderBy: { created_at: "desc" },
+    });
+
+    return feedback.map(item => ({
+        ...item,
+        created_at: item.created_at.toISOString(),
+    }));
+}
+
+// Get comments with filtering and pagination
+export async function getComments(
+    page: number = 1,
+    pageSize: number = 20,
+    office?: string,
+    search?: string,
+    startDate?: string,
+    endDate?: string
+) {
+    await verifyAdmin();
+
+    const skip = (page - 1) * pageSize;
+    const whereClause: Record<string, unknown> = {
+        comment: { not: null }, // Only get feedbacks with comments
+    };
+
+    if (office && office !== "all") {
+        whereClause.office = office;
+    }
+
+    if (search) {
+        whereClause.OR = [
+            { target_name: { contains: search } }, // Case insensitive usually depends on DB collation
+            { comment: { contains: search } },
+        ];
+    }
+
+    if (startDate && endDate) {
+        whereClause.created_at = {
+            gte: new Date(startDate),
+            lte: new Date(endDate + "T23:59:59.999Z"),
+        };
+    }
+
+    const [total, feedback] = await prisma.$transaction([
+        prisma.feedback.count({ where: whereClause }),
+        prisma.feedback.findMany({
+            where: whereClause,
+            orderBy: { created_at: "desc" },
+            skip,
+            take: pageSize,
+            select: {
+                id: true,
+                target_name: true,
+                phone: true,
+                rating: true,
+                comment: true,
+                office: true,
+                created_at: true,
+            },
+        }),
+    ]);
+
+    // Mask phone numbers
+    const maskedFeedback = feedback.map(f => {
+        let maskedPhone = null;
+        if (f.phone) {
+            // Check if it's a valid looking number to mask properly
+            const cleanPhone = f.phone.replace(/\D/g, '');
+            if (cleanPhone.length >= 10) {
+                // Keep first 3 (05X) and last 2, mask middle
+                // Example: 0532 123 45 67 -> 05** *** ** 67
+                // For simplicity, let's just show it as 05** *** ** ** if it starts with 05
+                // or just mask all but first 2 chars
+                maskedPhone = f.phone.substring(0, 2) + "** *** ** **";
+            } else {
+                maskedPhone = "** *** ** **";
+            }
+        }
+
+        return {
+            ...f,
+            phone: maskedPhone,
+            created_at: f.created_at.toISOString(),
+        };
+    });
+
+    return {
+        data: maskedFeedback,
+        pagination: {
+            total,
+            page,
+            pageSize,
+            totalPages: Math.ceil(total / pageSize),
+        }
+    };
+}
+
 // Get comparison data between two periods
 export async function getComparisonStats(
     period1Start: string,
