@@ -36,19 +36,7 @@ export default function NpsGauge({ score, promoters, passives, detractors, total
 
     return (
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 relative group">
-            {/* Info Tooltip */}
-            <div className="absolute top-6 right-6">
-                <div className="relative group">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-gray-400 hover:text-gray-600 cursor-help">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
-                    </svg>
-                    <div className="absolute right-0 w-64 p-3 bg-gray-800 text-white text-xs rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 top-6">
-                        <strong className="block mb-1 text-yellow-400">NPS Nedir?</strong>
-                        Net Tavsiye Skoru (NPS), müşteri memnuniyetini ölçen bir metriktir.
-                        Hesaplama: (Destekleyenler % - Kötüleyenler %)
-                    </div>
-                </div>
-            </div>
+
 
             <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -128,7 +116,11 @@ export default function NpsGauge({ score, promoters, passives, detractors, total
                 </div>
 
                 {/* Formula explanation */}
-                <div className="mt-4 text-xs text-gray-500 text-center">
+                <div className="mt-6 bg-gray-50 p-4 rounded-lg text-xs text-gray-600 text-center">
+                    <strong className="block mb-2 text-sm text-gray-700">NPS Nedir?</strong>
+                    <span className="block text-sm font-bold text-gray-900 mb-2">
+                        Net Tavsiye Skoru (NPS), müşteri memnuniyetini ölçen bir metriktir.Destekleyenlerin yüzdesinden Kötüleyenlerin yüzdesini çıkartarak hesaplanır.
+                    </span>
                     NPS = % Destekleyenler - % Kötüleyenler = {promoterPct}% - {detractorPct}% = <strong>{score}</strong>
                 </div>
             </div>

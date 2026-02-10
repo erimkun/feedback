@@ -78,7 +78,7 @@ export async function getAdvancedStats(
     dateSchema.parse(endDate);
     officeSchema.parse(office);
 
-    const whereClause: Record<string, unknown> = { is_used: true };
+    const whereClause: Record<string, unknown> = {};
 
     if (startDate && endDate) {
         whereClause.created_at = {

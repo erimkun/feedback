@@ -27,7 +27,7 @@ export default function AdminTabs({ recentFeedback }: AdminTabsProps) {
     return (
         <div className="space-y-6 md:space-y-8 max-w-6xl mx-auto px-4 md:px-0">
             {/* Tab Navigation */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-1 flex gap-1">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-1 flex flex-wrap gap-1">
                 <button
                     onClick={() => setActiveTab("links")}
                     className={`flex-1 px-4 py-3 rounded-md font-medium text-sm transition ${activeTab === "links"

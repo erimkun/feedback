@@ -208,7 +208,7 @@ export default function StatsDashboard() {
             </div>
 
             {/* Summary Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 md:gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 md:gap-4">
                 <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
                     <h3 className="text-gray-500 text-xs font-medium uppercase tracking-wider">Toplam</h3>
                     <p className="text-2xl font-bold text-gray-900 mt-1">{stats?.total || 0}</p>
@@ -216,6 +216,12 @@ export default function StatsDashboard() {
                 <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
                     <h3 className="text-gray-500 text-xs font-medium uppercase tracking-wider">Tamamlanan</h3>
                     <p className="text-2xl font-bold text-gray-900 mt-1">{stats?.used || 0}</p>
+                </div>
+                <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                    <h3 className="text-gray-500 text-xs font-medium uppercase tracking-wider">Dönüş Yüzdesi</h3>
+                    <p className="text-2xl font-bold text-gray-900 mt-1">
+                        {stats && stats.total > 0 ? ((stats.used / stats.total) * 100).toFixed(1) : "0.0"}%
+                    </p>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
                     <h3 className="text-gray-500 text-xs font-medium uppercase tracking-wider">Ort. Puan</h3>
@@ -402,21 +408,21 @@ export default function StatsDashboard() {
                                             <td className="px-4 py-2 text-center text-gray-600">{office.count}</td>
                                             <td className="px-4 py-2 text-center">
                                                 <span className={`font-medium ${office.avgRating >= 4 ? "text-green-600" :
-                                                        office.avgRating >= 3 ? "text-yellow-600" : "text-red-600"
+                                                    office.avgRating >= 3 ? "text-yellow-600" : "text-red-600"
                                                     }`}>
                                                     {office.avgRating.toFixed(1)}
                                                 </span>
                                             </td>
                                             <td className="px-4 py-2 text-center">
                                                 <span className={`font-medium ${office.npsScore >= 50 ? "text-green-600" :
-                                                        office.npsScore >= 0 ? "text-yellow-600" : "text-red-600"
+                                                    office.npsScore >= 0 ? "text-yellow-600" : "text-red-600"
                                                     }`}>
                                                     {office.npsScore > 0 ? "+" : ""}{office.npsScore}
                                                 </span>
                                             </td>
                                             <td className="px-4 py-2 text-center">
                                                 <span className={`font-medium ${(office.positiveCount / office.count * 100) >= 70 ? "text-green-600" :
-                                                        (office.positiveCount / office.count * 100) >= 50 ? "text-yellow-600" : "text-red-600"
+                                                    (office.positiveCount / office.count * 100) >= 50 ? "text-yellow-600" : "text-red-600"
                                                     }`}>
                                                     {((office.positiveCount / office.count) * 100).toFixed(0)}%
                                                 </span>

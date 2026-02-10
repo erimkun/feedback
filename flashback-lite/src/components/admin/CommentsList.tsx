@@ -94,7 +94,7 @@ export default function CommentsList() {
             {/* Filter Bar */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                 <form onSubmit={handleSearch} className="flex flex-wrap gap-4 items-end">
-                    <div className="flex-1 min-w-[200px]">
+                    <div className="flex-1 w-full md:min-w-[200px]">
                         <label className="block text-xs font-medium text-gray-500 mb-1">Arama</label>
                         <input
                             type="text"
@@ -174,7 +174,7 @@ export default function CommentsList() {
                                             <span className="text-xs text-gray-400">•</span>
                                             <span className="text-xs text-gray-500">{format(new Date(comment.created_at), "dd MMM yyyy HH:mm", { locale: tr })}</span>
                                         </div>
-                                        <div className="text-gray-800 text-sm leading-relaxed whitespace-pre-wrap">
+                                        <div className="text-gray-800 text-sm leading-relaxed whitespace-pre-wrap break-words">
                                             {comment.comment}
                                         </div>
                                         <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
@@ -221,8 +221,8 @@ export default function CommentsList() {
                                             key={i + 1}
                                             onClick={() => setPage(i + 1)}
                                             className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${page === i + 1
-                                                    ? "z-10 bg-blue-50 border-blue-500 text-blue-600"
-                                                    : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
+                                                ? "z-10 bg-blue-50 border-blue-500 text-blue-600"
+                                                : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
                                                 }`}
                                         >
                                             {i + 1}
