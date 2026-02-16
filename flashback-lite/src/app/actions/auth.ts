@@ -8,6 +8,8 @@ import { checkRateLimit, getClientIP } from "@/lib/rateLimit";
 const SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "default_secret");
 const ALG = "HS256";
 
+export type UserRole = "admin" | "viewer";
+
 export async function login(prevState: any, formData: FormData) {
   // Rate limiting - prevent brute force
   const headersList = await headers();
@@ -22,11 +24,25 @@ export async function login(prevState: any, formData: FormData) {
   const username = formData.get("username") as string;
   const password = formData.get("password") as string;
 
+  let role: UserRole | null = null;
+
+  // Check admin credentials
   if (
     username === process.env.ADMIN_USERNAME &&
     password === process.env.ADMIN_PASSWORD
   ) {
-    const token = await new SignJWT({ role: "admin" })
+    role = "admin";
+  }
+  // Check viewer credentials
+  else if (
+    username === process.env.VIEWER_USERNAME &&
+    password === process.env.VIEWER_PASSWORD
+  ) {
+    role = "viewer";
+  }
+
+  if (role) {
+    const token = await new SignJWT({ role })
       .setProtectedHeader({ alg: ALG })
       .setIssuedAt()
       .setExpirationTime("2h")

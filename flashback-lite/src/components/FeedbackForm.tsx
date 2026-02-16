@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { submitFeedback } from "@/app/actions";
 import Script from "next/script";
+import { SmileySad, SmileyMeh, SmileyBlank, Smiley, CheckCircle } from "@phosphor-icons/react";
 
 interface FeedbackFormProps {
   feedbackId: string;
@@ -18,13 +19,13 @@ const ratingColors: Record<number, string> = {
   5: "#339900", // Grass Green
 };
 
-// Phosphor icon isimleri
+// Phosphor React icons
 const ratingIcons = [
-  { value: 1, icon: "ph-smiley-sad", isSvg: false },
-  { value: 2, icon: "ph-smiley-meh", isSvg: false },
-  { value: 3, icon: "ph-smiley-blank", isSvg: false },
-  { value: 4, icon: "ph-smiley", isSvg: false },
-  { value: 5, icon: "/smiley-in-love-svgrepo-com.svg", isSvg: true },
+  { value: 1, Icon: SmileySad, isSvg: false },
+  { value: 2, Icon: SmileyMeh, isSvg: false },
+  { value: 3, Icon: SmileyBlank, isSvg: false },
+  { value: 4, Icon: Smiley, isSvg: false },
+  { value: 5, Icon: null, isSvg: true, svgPath: "/smiley-in-love-svgrepo-com.svg" },
 ];
 
 export default function FeedbackForm({ feedbackId, target_name }: FeedbackFormProps) {
@@ -79,14 +80,13 @@ export default function FeedbackForm({ feedbackId, target_name }: FeedbackFormPr
   if (isSubmitted) {
     return (
       <>
-        <Script src="https://unpkg.com/@phosphor-icons/web" strategy="beforeInteractive" />
         <Script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js" strategy="beforeInteractive" />
         <div className="bg-white h-[100dvh] overflow-hidden flex flex-col font-['Manrope',sans-serif] fixed inset-0">
           {/* Main Content */}
           <main className="flex-1 flex flex-col items-center justify-center px-4 py-4 max-w-lg mx-auto w-full">
             <div className="w-full max-w-lg flex flex-col items-center justify-center gap-6">
               <div className="w-24 h-24 rounded-full bg-green-100 flex items-center justify-center mb-2">
-                <i className="ph-fill ph-check-circle text-6xl text-green-500"></i>
+                <CheckCircle size={64} weight="fill" className="text-green-500" />
               </div>
               <div className="text-center space-y-3">
                 <h2 className="text-3xl font-extrabold text-gray-900">Teşekkür Ederiz!</h2>
@@ -109,14 +109,13 @@ export default function FeedbackForm({ feedbackId, target_name }: FeedbackFormPr
   // Feedback Form
   return (
     <>
-      <Script src="https://unpkg.com/@phosphor-icons/web" strategy="beforeInteractive" />
       <Script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js" strategy="beforeInteractive" />
       <style jsx global>{`
-        .ph-fill {
+        .rating-icon {
           transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .rating-item:hover .ph-fill,
-        .rating-item.selected .ph-fill {
+        .rating-item:hover .rating-icon,
+        .rating-item.selected .rating-icon {
           transform: scale(1.15);
         }
         .rating-item:hover .rating-svg,
@@ -173,7 +172,7 @@ export default function FeedbackForm({ feedbackId, target_name }: FeedbackFormPr
 
               {/* Rating Icons */}
               <div className="flex justify-between items-center px-1">
-                {ratingIcons.map(({ value, icon, isSvg }) => (
+                {ratingIcons.map(({ value, Icon, isSvg, svgPath }) => (
                   <button
                     key={value}
                     type="button"
@@ -190,7 +189,7 @@ export default function FeedbackForm({ feedbackId, target_name }: FeedbackFormPr
                     >
                       {isSvg ? (
                         <img
-                          src={icon}
+                          src={svgPath}
                           alt="Rating 5"
                           className="w-6 h-6 transition-all rating-svg"
                           style={{
@@ -200,17 +199,19 @@ export default function FeedbackForm({ feedbackId, target_name }: FeedbackFormPr
                             opacity: 1,
                           }}
                         />
-                      ) : (
-                        <i
-                          className={`ph-fill ${icon} text-3xl transition-colors`}
+                      ) : Icon ? (
+                        <Icon
+                          size={30}
+                          weight="fill"
+                          className="rating-icon transition-colors"
                           style={{
                             color:
                               selectedRating === value
                                 ? ratingColors[value]
                                 : "#9ca3af",
                           }}
-                        ></i>
-                      )}
+                        />
+                      ) : null}
                     </div>
                     <p
                       className="text-[10px] font-bold transition-colors"

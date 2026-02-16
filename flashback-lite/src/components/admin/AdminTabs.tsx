@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CreateLinkForm from "@/components/admin/CreateLinkForm";
 import BulkUpload from "@/components/admin/BulkUpload";
 import StatsDashboard from "@/components/admin/StatsDashboard";
@@ -8,8 +8,10 @@ import FeedbackRow from "@/components/admin/FeedbackRow";
 import FeedbackCard from "@/components/admin/FeedbackCard";
 import ResendSMSManager from "@/components/admin/ResendSMSManager";
 import CommentsList from "@/components/admin/CommentsList";
+import { ToastProvider } from "@/components/admin/Toast";
 
 type Tab = "links" | "stats" | "comments";
+type UserRole = "admin" | "viewer";
 
 interface AdminTabsProps {
     recentFeedback: {
@@ -19,29 +21,42 @@ interface AdminTabsProps {
         comment: string | null;
         created_at: string;
     }[];
+    userRole: UserRole;
 }
 
-export default function AdminTabs({ recentFeedback }: AdminTabsProps) {
-    const [activeTab, setActiveTab] = useState<Tab>("links");
+export default function AdminTabs({ recentFeedback, userRole }: AdminTabsProps) {
+    // Viewer users can only see stats and comments, not links
+    const defaultTab: Tab = userRole === "viewer" ? "stats" : "links";
+    const [activeTab, setActiveTab] = useState<Tab>(defaultTab);
+
+    // Ensure viewer users can't access links tab
+    useEffect(() => {
+        if (userRole === "viewer" && activeTab === "links") {
+            setActiveTab("stats");
+        }
+    }, [userRole, activeTab]);
 
     return (
+        <ToastProvider>
         <div className="space-y-6 md:space-y-8 max-w-6xl mx-auto px-4 md:px-0">
             {/* Tab Navigation */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-1 flex flex-wrap gap-1">
-                <button
-                    onClick={() => setActiveTab("links")}
-                    className={`flex-1 px-4 py-3 rounded-md font-medium text-sm transition ${activeTab === "links"
-                        ? "bg-blue-600 text-white shadow-sm"
-                        : "text-gray-600 hover:bg-gray-100"
-                        }`}
-                >
-                    <span className="flex items-center justify-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
-                        </svg>
-                        Link Yönetimi
-                    </span>
-                </button>
+                {userRole === "admin" && (
+                    <button
+                        onClick={() => setActiveTab("links")}
+                        className={`flex-1 px-4 py-3 rounded-md font-medium text-sm transition ${activeTab === "links"
+                            ? "bg-blue-600 text-white shadow-sm"
+                            : "text-gray-600 hover:bg-gray-100"
+                            }`}
+                    >
+                        <span className="flex items-center justify-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
+                            </svg>
+                            Link Yönetimi
+                        </span>
+                    </button>
+                )}
                 <button
                     onClick={() => setActiveTab("stats")}
                     className={`flex-1 px-4 py-3 rounded-md font-medium text-sm transition ${activeTab === "stats"
@@ -73,7 +88,7 @@ export default function AdminTabs({ recentFeedback }: AdminTabsProps) {
             </div>
 
             {/* Tab Content */}
-            {activeTab === "links" && (
+            {activeTab === "links" && userRole === "admin" && (
                 <div className="space-y-6 md:space-y-8">
                     {/* Create Link Section */}
                     <CreateLinkForm />
@@ -142,5 +157,6 @@ export default function AdminTabs({ recentFeedback }: AdminTabsProps) {
                 <CommentsList />
             )}
         </div>
+        </ToastProvider>
     );
 }

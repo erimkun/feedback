@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { getNonRespondents, getNonRespondentsCount, resendBulkSMS, BulkSendResult } from "@/app/actions/admin";
+import { useToast } from "@/components/admin/Toast";
 
 interface NonRespondent {
     id: string;
@@ -12,6 +13,7 @@ interface NonRespondent {
 }
 
 export default function ResendSMSManager() {
+    const { showToast, showConfirm } = useToast();
     const [stats, setStats] = useState<{ count: number; loading: boolean }>({ count: 0, loading: true });
     const [customMessage, setCustomMessage] = useState("");
     const [processing, setProcessing] = useState(false);
@@ -47,7 +49,7 @@ export default function ResendSMSManager() {
             setShowSelection(true);
         } catch (error) {
             console.error("Failed to load users:", error);
-            alert("Kullanıcı listesi yüklenemedi.");
+            showToast("Kullanıcı listesi yüklenemedi.", "error");
         } finally {
             setLoadingUsers(false);
         }
@@ -71,28 +73,7 @@ export default function ResendSMSManager() {
         }
     };
 
-    const handleSend = async (limit?: number) => {
-        let targetIds: string[] = [];
-
-        // If manual selection mode is active and we have selected items, use them
-        // BUT ONLY if we are clicking the "Send Selected" button (limit is undefined in that case)
-        if (showSelection && !limit) {
-            if (selectedIds.size === 0) {
-                alert("Lütfen en az bir kişi seçin.");
-                return;
-            }
-            targetIds = Array.from(selectedIds);
-
-            if (!confirm(`Emin misiniz? Seçili ${targetIds.length} kişiye SMS gönderilecek.`)) {
-                return;
-            }
-        } else {
-            // Quick send mode (blindly send to top N or All)
-            if (!confirm(`Emin misiniz? ${limit ? `${limit} kişiye` : "TÜM " + stats.count + " kişiye"} SMS gönderilecek.`)) {
-                return;
-            }
-        }
-
+    const processSend = useCallback(async (targetIds: string[], limit?: number) => {
         setProcessing(true);
         setResults([]);
 
@@ -101,7 +82,7 @@ export default function ResendSMSManager() {
             if (targetIds.length === 0) {
                 const targets = await getNonRespondents(limit);
                 if (targets.length === 0) {
-                    alert("Gönderilecek kimse bulunamadı.");
+                    showToast("Gönderilecek kimse bulunamadı.", "warning");
                     setProcessing(false);
                     return;
                 }
@@ -125,6 +106,8 @@ export default function ResendSMSManager() {
             }
 
             setResults(allResults);
+            const successCount = allResults.filter(r => r.success).length;
+            showToast(`${successCount} SMS başarıyla gönderildi.`, "success");
             await loadStats(); // Refresh count
             if (showSelection) {
                 // Refresh list to remove sent ones
@@ -134,10 +117,37 @@ export default function ResendSMSManager() {
 
         } catch (error) {
             console.error("Bulk send error:", error);
-            alert("Bir hata oluştu.");
+            showToast("Bir hata oluştu.", "error");
         } finally {
             setProcessing(false);
             setProgress(null);
+        }
+    }, [customMessage, showSelection, showToast]);
+
+    const handleSend = (limit?: number) => {
+        let targetIds: string[] = [];
+
+        // If manual selection mode is active and we have selected items, use them
+        // BUT ONLY if we are clicking the "Send Selected" button (limit is undefined in that case)
+        if (showSelection && !limit) {
+            if (selectedIds.size === 0) {
+                showToast("Lütfen en az bir kişi seçin.", "warning");
+                return;
+            }
+            targetIds = Array.from(selectedIds);
+
+            showConfirm(`Seçili ${targetIds.length} kişiye SMS gönderilecek. Devam etmek istiyor musunuz?`, () => {
+                processSend(targetIds, limit);
+            });
+        } else {
+            // Quick send mode (blindly send to top N or All)
+            const message = limit 
+                ? `${limit} kişiye SMS gönderilecek. Devam etmek istiyor musunuz?`
+                : `TÜM ${stats.count} kişiye SMS gönderilecek. Devam etmek istiyor musunuz?`;
+            
+            showConfirm(message, () => {
+                processSend([], limit);
+            });
         }
     };
 
