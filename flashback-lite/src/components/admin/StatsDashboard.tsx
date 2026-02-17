@@ -24,7 +24,6 @@ import ComparisonChart from "./ComparisonChart";
 import TargetProgress from "./TargetProgress";
 import FeedbackCalendar from "./FeedbackCalendar";
 import NegativeTickets from "./NegativeTickets";
-import PositiveTickets from "./PositiveTickets";
 import Modal from "./Modal";
 
 type TimeRange = "7d" | "30d" | "thisMonth" | "lastMonth" | "90d" | "all";
@@ -47,7 +46,6 @@ export default function StatsDashboard() {
     const [customStart, setCustomStart] = useState("");
     const [customEnd, setCustomEnd] = useState("");
     const [showNegativeTickets, setShowNegativeTickets] = useState(false);
-    const [showPositiveTickets, setShowPositiveTickets] = useState(false);
     const [officeCompareA, setOfficeCompareA] = useState<string>("");
     const [officeCompareB, setOfficeCompareB] = useState<string>("");
     const [officeComparisonResult, setOfficeComparisonResult] = useState<any | null>(null);
@@ -103,7 +101,7 @@ export default function StatsDashboard() {
         if (!officeCompareA || !officeCompareB) return;
         setOfficeCompareLoading(true);
         setOfficeComparisonResult(null);
-        try {
+            try {
             const { start, end } = getDateRange(timeRange);
             const res = await getOfficeComparison(start, end, officeCompareA, officeCompareB);
             setOfficeComparisonResult(res);
@@ -116,10 +114,10 @@ export default function StatsDashboard() {
 
     const pieData = stats
         ? [
-            { name: "Olumlu (4-5)", value: stats.positiveCount },
-            { name: "Nötr (3)", value: stats.neutralCount },
-            { name: "Olumsuz (1-2)", value: stats.negativeCount },
-        ]
+              { name: "Olumlu (4-5)", value: stats.positiveCount },
+              { name: "Nötr (3)", value: stats.neutralCount },
+              { name: "Olumsuz (1-2)", value: stats.negativeCount },
+          ]
         : [];
 
     const formatDateLabel = (dateStr: string) => {
@@ -151,15 +149,6 @@ export default function StatsDashboard() {
                 size="xl"
             >
                 <NegativeTickets onClose={() => setShowNegativeTickets(false)} />
-            </Modal>
-
-            <Modal
-                isOpen={showPositiveTickets}
-                onClose={() => setShowPositiveTickets(false)}
-                title="Olumlu Geri Bildirimler"
-                size="xl"
-            >
-                <PositiveTickets onClose={() => setShowPositiveTickets(false)} />
             </Modal>
 
             {/* Filters */}
@@ -208,7 +197,7 @@ export default function StatsDashboard() {
             </div>
 
             {/* Summary Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 md:gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 md:gap-4">
                 <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
                     <h3 className="text-gray-500 text-xs font-medium uppercase tracking-wider">Toplam</h3>
                     <p className="text-2xl font-bold text-gray-900 mt-1">{stats?.total || 0}</p>
@@ -216,12 +205,6 @@ export default function StatsDashboard() {
                 <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
                     <h3 className="text-gray-500 text-xs font-medium uppercase tracking-wider">Tamamlanan</h3>
                     <p className="text-2xl font-bold text-gray-900 mt-1">{stats?.used || 0}</p>
-                </div>
-                <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-                    <h3 className="text-gray-500 text-xs font-medium uppercase tracking-wider">Dönüş Yüzdesi</h3>
-                    <p className="text-2xl font-bold text-gray-900 mt-1">
-                        {stats && stats.total > 0 ? ((stats.used / stats.total) * 100).toFixed(1) : "0.0"}%
-                    </p>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
                     <h3 className="text-gray-500 text-xs font-medium uppercase tracking-wider">Ort. Puan</h3>
@@ -233,23 +216,15 @@ export default function StatsDashboard() {
                         {(stats?.npsScore || 0) > 0 ? "+" : ""}{stats?.npsScore || 0}
                     </p>
                 </div>
-                <button
-                    onClick={() => setShowPositiveTickets(true)}
-                    className="bg-white p-4 rounded-lg shadow-sm border border-green-200 hover:border-green-400 hover:bg-green-50 transition text-left"
-                >
-                    <h3 className="text-green-500 text-xs font-medium uppercase tracking-wider flex items-center gap-1">
-                        Olumlu
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-3 h-3">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
-                        </svg>
-                    </h3>
+                <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                    <h3 className="text-gray-500 text-xs font-medium uppercase tracking-wider">Olumlu</h3>
                     <p className="text-2xl font-bold text-green-600 mt-1">{stats?.positiveCount || 0}</p>
-                </button>
+                </div>
                 <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
                     <h3 className="text-gray-500 text-xs font-medium uppercase tracking-wider">Nötr</h3>
                     <p className="text-2xl font-bold text-yellow-600 mt-1">{stats?.neutralCount || 0}</p>
                 </div>
-                <button
+                <button 
                     onClick={() => setShowNegativeTickets(true)}
                     className="bg-white p-4 rounded-lg shadow-sm border border-red-200 hover:border-red-400 hover:bg-red-50 transition text-left"
                 >
@@ -272,13 +247,13 @@ export default function StatsDashboard() {
                         <ResponsiveContainer width="100%" height={300}>
                             <LineChart data={stats.timeSeriesData}>
                                 <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis
-                                    dataKey="date"
+                                <XAxis 
+                                    dataKey="date" 
                                     tickFormatter={formatDateLabel}
                                     fontSize={12}
                                 />
                                 <YAxis fontSize={12} />
-                                <Tooltip
+                                <Tooltip 
                                     labelFormatter={(label) => format(new Date(label), "dd MMMM yyyy", { locale: tr })}
                                 />
                                 <Legend />
@@ -345,13 +320,13 @@ export default function StatsDashboard() {
                     <ResponsiveContainer width="100%" height={250}>
                         <LineChart data={stats.timeSeriesData}>
                             <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis
-                                dataKey="date"
+                            <XAxis 
+                                dataKey="date" 
                                 tickFormatter={formatDateLabel}
                                 fontSize={12}
                             />
                             <YAxis domain={[0, 5]} fontSize={12} />
-                            <Tooltip
+                            <Tooltip 
                                 labelFormatter={(label) => format(new Date(label), "dd MMMM yyyy", { locale: tr })}
                                 formatter={(value) => typeof value === 'number' ? value.toFixed(2) : value}
                             />
@@ -407,23 +382,26 @@ export default function StatsDashboard() {
                                             <td className="px-4 py-2 font-medium text-gray-900">{office.office}</td>
                                             <td className="px-4 py-2 text-center text-gray-600">{office.count}</td>
                                             <td className="px-4 py-2 text-center">
-                                                <span className={`font-medium ${office.avgRating >= 4 ? "text-green-600" :
+                                                <span className={`font-medium ${
+                                                    office.avgRating >= 4 ? "text-green-600" :
                                                     office.avgRating >= 3 ? "text-yellow-600" : "text-red-600"
-                                                    }`}>
+                                                }`}>
                                                     {office.avgRating.toFixed(1)}
                                                 </span>
                                             </td>
                                             <td className="px-4 py-2 text-center">
-                                                <span className={`font-medium ${office.npsScore >= 50 ? "text-green-600" :
+                                                <span className={`font-medium ${
+                                                    office.npsScore >= 50 ? "text-green-600" :
                                                     office.npsScore >= 0 ? "text-yellow-600" : "text-red-600"
-                                                    }`}>
+                                                }`}>
                                                     {office.npsScore > 0 ? "+" : ""}{office.npsScore}
                                                 </span>
                                             </td>
                                             <td className="px-4 py-2 text-center">
-                                                <span className={`font-medium ${(office.positiveCount / office.count * 100) >= 70 ? "text-green-600" :
+                                                <span className={`font-medium ${
+                                                    (office.positiveCount / office.count * 100) >= 70 ? "text-green-600" :
                                                     (office.positiveCount / office.count * 100) >= 50 ? "text-yellow-600" : "text-red-600"
-                                                    }`}>
+                                                }`}>
                                                     {((office.positiveCount / office.count) * 100).toFixed(0)}%
                                                 </span>
                                             </td>
