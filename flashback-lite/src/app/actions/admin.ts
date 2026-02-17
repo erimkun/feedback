@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { sendSMS, isValidPhoneNumber } from "@/lib/sms";
-import { verifyAdmin } from "@/lib/auth";
+import { verifyAdmin, verifyAuth } from "@/lib/auth";
 import generateId from "@/lib/id";
 import { Prisma } from '@prisma/client';
 import { revalidatePath } from "next/cache";
@@ -20,7 +20,7 @@ const dateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional();
 const officeSchema = z.string().max(50).optional();
 
 export async function getFeedbackStats() {
-    await verifyAdmin();
+    await verifyAuth();
     const total = await prisma.feedback.count();
     const used = await prisma.feedback.count({ where: { is_used: true } });
 
@@ -42,7 +42,7 @@ export async function getFeedbackStats() {
 }
 
 export async function getOfficeList() {
-    await verifyAdmin();
+    await verifyAuth();
     const offices = await prisma.feedback.findMany({
         where: { office: { not: null } },
         select: { office: true },
@@ -71,7 +71,7 @@ export async function getAdvancedStats(
     endDate?: string,
     office?: string
 ): Promise<AdvancedStats> {
-    await verifyAdmin();
+    await verifyAuth();
 
     // Validate inputs
     dateSchema.parse(startDate);
@@ -203,7 +203,7 @@ export async function getNegativeFeedbacks(
     endDate?: string,
     office?: string
 ) {
-    await verifyAdmin();
+    await verifyAuth();
 
     // Validate inputs
     dateSchema.parse(startDate);
@@ -243,7 +243,7 @@ export async function getPositiveFeedbacks(
     endDate?: string,
     office?: string
 ) {
-    await verifyAdmin();
+    await verifyAuth();
 
     // Validate inputs
     dateSchema.parse(startDate);
@@ -286,7 +286,7 @@ export async function getComments(
     startDate?: string,
     endDate?: string
 ) {
-    await verifyAdmin();
+    await verifyAuth();
 
     const skip = (page - 1) * pageSize;
     const whereClause: Record<string, unknown> = {
@@ -382,7 +382,7 @@ export async function getComparisonStats(
         volumeChange: number;
     };
 }> {
-    await verifyAdmin();
+    await verifyAuth();
     const period1Stats = await getAdvancedStats(period1Start, period1End, office);
     const period2Stats = await getAdvancedStats(period2Start, period2End, office);
 
@@ -408,7 +408,7 @@ export async function getOfficeComparison(
     officeA: string,
     officeB: string
 ) {
-    await verifyAdmin();
+    await verifyAuth();
     const statsA = await getAdvancedStats(start, end, officeA);
     const statsB = await getAdvancedStats(start, end, officeB);
 
@@ -440,7 +440,7 @@ export interface MonthlyTarget {
 }
 
 export async function getMonthlyProgress(year: number, month: number): Promise<MonthlyTarget> {
-    await verifyAdmin();
+    await verifyAuth();
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 0, 23, 59, 59);
 
@@ -472,7 +472,7 @@ export async function getMonthlyProgress(year: number, month: number): Promise<M
 
 // Get calendar data for feedback visualization
 export async function getCalendarData(year: number, month: number) {
-    await verifyAdmin();
+    await verifyAuth();
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 0, 23, 59, 59);
 
